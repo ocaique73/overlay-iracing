@@ -221,9 +221,9 @@ body[data-overlay="fps"] .anchor-grid, body[data-overlay="fps"] .frame-label { d
 .warncard.off { border-left-color: #ff3b30; color: #ff3b30; letter-spacing: 0.6px; }
 
 /* ---------- bandeiras: estilo "bandeira ao lado" ---------- */
-/* cartão normal + a bandeira num quadrado transparente separado, do lado */
-.fside { display: flex; align-items: center; gap: 6px; }
+/* cartão normal + a bandeira num quadrado transparente separado, do lado, da altura do cartão */
+.fside { display: flex; align-items: stretch; gap: 6px; }
 .fside.right { flex-direction: row-reverse; }
-.fside .fbox { flex: 0 0 auto; width: 58px; display: flex; align-items: center; justify-content: center; background: transparent; }
-.fside .fsvg { width: 58px; height: 40px; filter: drop-shadow(0 2px 4px rgba(0,0,0,.6)); }
+.fside .fbox { flex: 0 0 auto; width: 84px; display: flex; align-items: center; justify-content: center; background: transparent; }
+.fside .fsvg { width: 100%; height: auto; max-height: 76px; filter: drop-shadow(0 2px 4px rgba(0,0,0,.6)); }
 .fside .fcard { flex: 1; min-width: 0; }

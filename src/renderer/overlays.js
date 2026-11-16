@@ -225,7 +225,8 @@
       case 'white': return solid('#f4f5f7');
       case 'red': return solid('#e10600');
       case 'black': return solid('#0b0b0c');
-      case 'disqualify': return solid('#0b0b0c') + '<path d="M18 9 L44 27 M44 9 L18 27" stroke="#fff" stroke-width="4"/>';
+      // o X acompanha a ondulação do pano (senão parece que está na frente da bandeira)
+      case 'disqualify': return solid('#0b0b0c') + '<path d="M14 9 C23 15 33 19 49 24 M49 7 C38 12 28 17 14 25" fill="none" stroke="#f4f5f7" stroke-width="3.6" stroke-linecap="round"/>';
       case 'repair': return solid('#0b0b0c') + '<circle cx="31" cy="17" r="8.5" fill="#ff7a00"/>';
       case 'furled': return '<path d="M0 0 H60 L0 36 Z" fill="#0b0b0c"/><path d="M60 0 V36 H0 Z" fill="#f4f5f7"/>';
       case 'debris': return Array.from({ length: 6 }, (_, i) => `<rect x="${i * 10}" y="0" width="10" height="36" fill="${i % 2 ? '#e10600' : '#ffd200'}"/>`).join('');
