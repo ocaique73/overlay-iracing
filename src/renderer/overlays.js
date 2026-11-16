@@ -258,7 +258,8 @@
     }
     // amarela agitada: uma bandeira só, inclinada como as da neutralização (e o pano balança)
     if (kind === 'yellowWaving') {
-      return `<svg class="fsvg" viewBox="0 0 64 44" aria-hidden="true">${defs}
+      // pode passar um pouco do topo do cartão pra bandeira inclinada não ser cortada
+      return `<svg class="fsvg over" viewBox="0 0 64 44" aria-hidden="true">${defs}
         ${oneFlag(kind, id, ' transform="translate(9 1) scale(.96) rotate(-14 4 39)"')}</svg>`;
     }
     return `<svg class="fsvg" viewBox="0 0 60 40" aria-hidden="true">${defs}${oneFlag(kind, id)}</svg>`;
