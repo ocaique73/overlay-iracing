@@ -6,7 +6,7 @@
   'use strict';
 
   const NAMES = [
-    'Lucas Almeida', 'Rafael Souza', 'Max Verhagen', 'Tom Becker', 'Diego Ramos', 'Caique Araujo',
+    'Lucas Almeida', 'Rafael Souza', 'Max Verhagen', 'Tom Becker', 'Diego Ramos', 'Player iRacing',
     'Pedro Lima', 'Jonas Weber', 'Mateo Garcia', 'Bruno Costa', 'Felipe Rocha', 'Andre Silva',
     'Luca Rossi', 'Kenji Sato', 'Oliver Hart', 'Nico Brandt', 'Henrique Dias', 'Sam Turner',
     'Ivan Petrov', 'Leo Martins', 'Arthur Nunes', 'Gabriel Moura',

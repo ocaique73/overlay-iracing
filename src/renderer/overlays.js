@@ -252,15 +252,11 @@
     blue: '#4c9dff', white: '#ffffff', checkered: '#ffffff', red: '#ff4d42', debris: '#ffd200',
     black: '#ffffff', repair: '#ff8c1a', furled: '#ffffff', disqualify: '#ff4d42',
   };
-  function flagCardSide(kind, texts, reason, side, isPenalty) {
-    const [title, sub] = texts;
-    // bandeiras comuns: o desenho já diz qual é, então o texto "Bandeira X" sai; punições mantêm a explicação
-    const showSub = !!isPenalty;
-    // a bandeira fica num quadrado transparente separado, ao lado do cartão de texto
+  // visual "bandeira ao lado": o cartão normal (título + faixa colorida) e, num quadrado
+  // transparente separado à esquerda ou à direita, o desenho da bandeira
+  function flagCardSide(kind, texts, reason, side) {
     return `<div class="fside ${side === 'right' ? 'right' : ''}">
-      <div class="fbox">${flagSvg(kind)}</div>
-      <div class="ftxt"><div class="ft" style="color:${FLAG_TITLE_SIDE[kind] || '#fff'}">${esc(title)}</div>
-        ${showSub ? `<div class="fs">${esc(sub)}</div>` : ''}${reason ? `<div class="fr">${esc(reason)}</div>` : ''}</div></div>`;
+      <div class="fbox">${flagSvg(kind)}</div><div class="fcard">${flagCard(kind, texts, reason)}</div></div>`;
   }
 
   // bandeiras com desenho (quadriculada, detritos, advertência) não ficam atrás do texto:
