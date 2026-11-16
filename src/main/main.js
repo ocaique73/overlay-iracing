@@ -192,7 +192,7 @@ function setLocked(locked) {
 
 function createPanel() {
   panelWin = new BrowserWindow({
-    width: 980, height: 760, minWidth: 820, minHeight: 560, title: 'Overlay iRacing',
+    width: 1180, height: 820, minWidth: 940, minHeight: 600, title: 'Overlay iRacing',
     backgroundColor: '#14161a', autoHideMenuBar: true,
     webPreferences: { preload: path.join(__dirname, '..', 'preload.js'), contextIsolation: true, nodeIntegration: false },
   });
@@ -221,6 +221,24 @@ function isGameInFront() {
   if (/iRacing\.com Simulator/i.test(title)) return true;
   return false;
 }
+// prévia do painel: 10x por segundo, com os dados do jogo se ele estiver aberto, senão com dados de exemplo
+const previewDemo = new Demo();
+let previewBuilder = null; let lastPreviewAt = 0;
+function sendPreview(state, now) {
+  if (!panelWin || panelWin.isDestroyed() || !panelWin.isVisible() || panelWin.isMinimized()) return;
+  if (now - lastPreviewAt < 100) return;
+  const dt = Math.min(0.5, (now - (lastPreviewAt || now)) / 1000);
+  lastPreviewAt = now;
+  let st = state;
+  if (!(state && (state.connected || state.sample))) {
+    if (!previewBuilder) previewBuilder = new StateBuilder({ store: null });
+    previewDemo.step(dt);
+    st = previewBuilder.build(previewDemo.telemetry(), previewDemo.session(), { nowMs: now });
+    st.sample = true;
+  }
+  panelWin.webContents.send('panel:preview', st);
+}
+
 function tick() {
   const now = Date.now();
   const dt = Math.min(0.2, (now - lastTick) / 1000);
@@ -261,6 +279,7 @@ function tick() {
   }
   state.editMode = !config.data.locked;
   lastState = state;
+  sendPreview(state, now);
   updateProfile();
   for (const win of Object.values(windows)) {
     if (!win.isDestroyed()) win.webContents.send('state', state);

@@ -5,7 +5,7 @@
   const L = {
     pt: {
       language: 'Idioma', demo: 'Modo demonstração', margin: 'Margem do encaixe', logos: 'Abrir pasta de logos das marcas', upd: { version: 'Versão', check: 'Verificar atualização', checking: 'Verificando…', uptodate: 'Você está na versão mais nova', available: 'Atualizar para', downloading: 'Baixando', ready: 'Instalando…', error: 'Não deu pra atualizar agora' },
-      locked: '🔒 Travado', unlocked: '🔓 Destravado (editando)',
+      locked: '🔒 Travado', unlocked: '🔓 Destravado (editando)', editBtn: 'Editar posições', lockBtn: 'Travar overlays', overlaysLbl: 'Overlays', preview: 'Prévia', previewOff: 'Este overlay está desligado', position: 'Posição',
       hint: 'Destravado: arraste os overlays, use os cantos pra mudar o tamanho e as laterais pra mais linhas ou colunas. Atalho pra travar/destravar: Ctrl+Shift+L.',
       status: { connected: 'iRacing conectado', waiting: 'Aguardando o iRacing', demo: 'Demonstração' },
       anchor: 'Encaixe', nudge: 'Ajuste fino', scale: 'Tamanho', reset: 'Restaurar', options: 'Opções',
@@ -27,7 +27,7 @@
     },
     en: {
       language: 'Language', demo: 'Demo mode', margin: 'Snap margin', logos: 'Open brand logos folder', upd: { version: 'Version', check: 'Check for update', checking: 'Checking…', uptodate: 'You are on the latest version', available: 'Update to', downloading: 'Downloading', ready: 'Installing…', error: 'Could not update right now' },
-      locked: '🔒 Locked', unlocked: '🔓 Unlocked (editing)',
+      locked: '🔒 Locked', unlocked: '🔓 Unlocked (editing)', editBtn: 'Edit positions', lockBtn: 'Lock overlays', overlaysLbl: 'Overlays', preview: 'Preview', previewOff: 'This overlay is off', position: 'Position',
       hint: 'Unlocked: drag overlays, use corners to resize and sides for more rows or columns. Lock/unlock shortcut: Ctrl+Shift+L.',
       status: { connected: 'iRacing connected', waiting: 'Waiting for iRacing', demo: 'Demo' },
       anchor: 'Snap', nudge: 'Fine tune', scale: 'Size', reset: 'Reset', options: 'Options',
@@ -49,6 +49,7 @@
     },
     es: {
       language: 'Idioma', demo: 'Modo demostración', margin: 'Margen de ajuste', logos: 'Abrir carpeta de logos de marcas', upd: { version: 'Versión', check: 'Buscar actualización', checking: 'Buscando…', uptodate: 'Tienes la versión más nueva', available: 'Actualizar a', downloading: 'Descargando', ready: 'Instalando…', error: 'No se pudo actualizar ahora' },
+      editBtn: 'Editar posiciones', lockBtn: 'Bloquear overlays', overlaysLbl: 'Overlays', preview: 'Vista previa', previewOff: 'Este overlay está apagado', position: 'Posición',
       locked: '🔒 Bloqueado', unlocked: '🔓 Desbloqueado (editando)',
       hint: 'Desbloqueado: arrastra los overlays, usa las esquinas para el tamaño y los lados para más filas o columnas. Atajo para bloquear: Ctrl+Shift+L.',
       status: { connected: 'iRacing conectado', waiting: 'Esperando iRacing', demo: 'Demostración' },
@@ -75,7 +76,9 @@
   const PROFILES = ['default', 'practice', 'qualify', 'race'];
   const ANCHORS = ['top-left', 'top-center', 'top-right', 'center-left', 'center', 'center-right', 'bottom-left', 'bottom-center', 'bottom-right'];
   let cfg = null; let status = '';
-  const $ = (s) => document.querySelector(s);
+  let sel = 'standings';
+  try { sel = localStorage.getItem('sel') || sel; } catch (e) { /* sem storage */ }
+  const $ = (q) => document.querySelector(q);
 
   function tr() { return L[cfg.language] || L.pt; }
 
@@ -89,33 +92,34 @@
     $('#onlyInCar').checked = cfg.onlyInCar !== false;
     $('#onlyInCarLbl').textContent = t.onlyInCar;
     const lock = $('#lock');
-    lock.textContent = cfg.locked ? t.locked : t.unlocked;
-    lock.classList.toggle('locked', cfg.locked);
+    lock.textContent = cfg.locked ? t.editBtn : t.lockBtn;
+    lock.classList.toggle('editing', !cfg.locked);
     $('#hint').textContent = t.hint;
+    $('#hint').classList.toggle('hidden', !!cfg.locked);
     renderStatus();
     renderProfiles(t);
-    if (typeof renderUpdate === 'function') try { renderUpdate(); } catch (e) { /* ainda não iniciou */ }
-    const list = $('#list');
-    const scrollY = window.scrollY;
-    list.innerHTML = ORDER.map((id) => card(id, cfg.overlays[id], t)).join('');
-    window.scrollTo(0, scrollY);
+    try { renderUpdate(); } catch (e) { /* ainda não iniciou */ }
+    if (!ORDER.includes(sel)) sel = 'standings';
+    $('#list').innerHTML = ORDER.map((id) => {
+      const o = cfg.overlays[id];
+      return `<div class="row ${id === sel ? 'sel' : ''} ${o.enabled ? '' : 'off'}">
+        <button class="pick" data-pick="${id}">${t.names[id]}</button>
+        <label class="switch"><input type="checkbox" data-enable="${id}" ${o.enabled ? 'checked' : ''}><i></i></label></div>`;
+    }).join('');
+    renderDetail(t);
   }
 
   function renderProfiles(t) {
-    const el = $('#profiles');
     const ed = cfg.editProfile || 'default';
     const srcs = PROFILES.filter((k) => k !== ed && (k === 'default' || (cfg.profiles && cfg.profiles[k])));
-    const btns = PROFILES.map((k) => {
+    const tabs = PROFILES.map((k) => {
       const exists = k === 'default' || (cfg.profiles && cfg.profiles[k]);
-      const cls = [k === ed ? 'sel' : '', exists ? '' : 'empty', k === cfg.activeProfile ? 'active' : ''].join(' ');
-      return `<button class="prof ${cls}" data-prof="${k}">${exists ? '' : '+ '}${t.prof[k]}${k === cfg.activeProfile ? ' <i>●</i>' : ''}</button>`;
+      return `<button class="${k === ed ? 'sel' : ''} ${exists ? '' : 'empty'}" data-prof="${k}" title="${t.profHint}">${exists ? '' : '+ '}${t.prof[k]}${k === cfg.activeProfile ? '<span class="dot"></span>' : ''}</button>`;
     }).join('');
-    el.innerHTML = `<span class="label">${t.layout}</span>${btns}
-      ${srcs.length ? `<span class="copyrow">${t.copyFrom}
-        <select id="copyFrom">${srcs.map((k) => `<option value="${k}">${t.prof[k]}</option>`).join('')}</select>
-        <button data-copyprof="1">${t.copyBtn}</button></span>` : ''}
-      ${ed !== 'default' ? `<button class="ghost del" data-delprof="${ed}">${t.delProfile}</button>` : ''}
-      <span class="phint">● ${t.inUse} · ${t.profHint}</span>`;
+    $('#profiles').innerHTML = `<div class="tabs">${tabs}</div>
+      <div class="profrow">${srcs.length ? `${t.copyFrom} <select id="copyFrom">${srcs.map((k) => `<option value="${k}">${t.prof[k]}</option>`).join('')}</select>
+        <button data-copyprof="1">${t.copyBtn}</button>` : ''}
+        ${ed !== 'default' ? `<button class="del" data-delprof="${ed}">${t.delProfile}</button>` : ''}</div>`;
   }
 
   function renderStatus() {
@@ -124,32 +128,48 @@
     el.className = `status ${status}`;
   }
 
-  function card(id, o, t) {
-    const opts = Object.entries(o.options || {}).map(([k, v]) => {
-      if (CHOICES[k]) {
-        return `<label>${t.opt[k] || k} <select data-choice="${k}" data-id="${id}">${CHOICES[k].map((c) => `<option value="${c}" ${c === v ? 'selected' : ''}>${t.choice[c] || c}</option>`).join('')}</select></label>`;
-      }
-      if (typeof v === 'number') {
-        return `<label>${t.opt[k] || k} <input type="range" min="10" max="100" step="5" value="${v}" data-num="${k}" data-id="${id}" style="accent-color:#e10600"><span>${v}%</span></label>`;
-      }
-      const checked = v !== false;
-      return `<label><input type="checkbox" data-opt="${k}" data-id="${id}" ${checked ? 'checked' : ''}>${t.opt[k] || k}</label>`;
-    }).join('');
-    return `<section class="ov ${o.enabled ? '' : 'off'}">
-      <div class="top"><span class="name">${t.names[id]}</span>
-        <label class="switch"><input type="checkbox" data-enable="${id}" ${o.enabled ? 'checked' : ''}><i></i></label></div>
-      <div class="pos">
-        <div><div class="label">${t.anchor}</div><div class="grid9">${ANCHORS.map((a) => `<button data-anchor="${a}" data-id="${id}" title="${a}"></button>`).join('')}</div></div>
-        <div><div class="label">${t.nudge}</div><div class="arrows">
+  function optRow(id, k, v, t) {
+    if (CHOICES[k]) {
+      return `<div class="opt"><span class="on">${t.opt[k] || k}</span><div class="seg">${CHOICES[k].map((c) =>
+        `<button class="${c === v ? 'sel' : ''}" data-choice="${k}" data-val="${c}" data-id="${id}">${t.choice[c] || c}</button>`).join('')}</div></div>`;
+    }
+    if (typeof v === 'number') {
+      return `<div class="opt"><span class="on">${t.opt[k] || k}</span><input type="range" min="10" max="100" step="5" value="${v}" data-num="${k}" data-id="${id}"><span>${v}%</span></div>`;
+    }
+    return `<label class="opt check"><span class="on">${t.opt[k] || k}</span>
+      <span class="switch"><input type="checkbox" data-opt="${k}" data-id="${id}" ${v !== false ? 'checked' : ''}><i></i></span></label>`;
+  }
+
+  // a prévia fica num iframe que usa o mesmo desenho dos overlays de verdade
+  let frame = null; let frameReady = false; let lastPreview = null;
+  function renderDetail(t) {
+    const id = sel; const o = cfg.overlays[id];
+    const scale = Math.round(o.scale * 100);
+    const opts = Object.entries(o.options || {}).map(([k, v]) => optRow(id, k, v, t)).join('');
+    const d = $('#detail');
+    // mantém o iframe (não recarrega a cada clique)
+    if (!frame) { frame = document.createElement('iframe'); frame.src = 'preview.html'; frame.addEventListener('load', () => { frameReady = true; sendPreview(); }); }
+    d.innerHTML = `<div class="dhead"><h1>${t.names[id]}</h1><span class="spacer"></span><button class="ghost small" data-reset="${id}">${t.reset}</button></div>
+      <div class="preview" id="pv"><span class="plbl">${t.preview.toUpperCase()}</span>${o.enabled ? '' : `<div class="poff">${t.previewOff}</div>`}</div>
+      <div class="cards3">
+        <div class="box"><span class="lbl">${t.position}</span><div class="grid9">${ANCHORS.map((a) => `<button data-anchor="${a}" data-id="${id}" title="${a}"></button>`).join('')}</div></div>
+        <div class="box"><span class="lbl">${t.scale}</span><div class="big"><b id="scaleTxt">${scale}</b><span>%</span></div>
+          <input type="range" min="40" max="300" step="5" value="${scale}" data-scale="${id}"></div>
+        <div class="box"><span class="lbl">${t.nudge}</span><div class="arrows">
           <button class="u" data-nudge="0,-5" data-id="${id}">▲</button><button class="l" data-nudge="-5,0" data-id="${id}">◀</button>
           <button class="d" data-nudge="0,5" data-id="${id}">▼</button><button class="r" data-nudge="5,0" data-id="${id}">▶</button></div></div>
-        <div><div class="label">${t.scale}</div><div class="scale"><input type="range" min="40" max="300" step="5" value="${Math.round(o.scale * 100)}" data-scale="${id}"><span>${Math.round(o.scale * 100)}%</span></div></div>
-        <button data-reset="${id}">${t.reset}</button>
       </div>
       ${opts ? `<div class="opts">${opts}</div>` : ''}
       <div class="copyov"><span>${t.copyTo}</span>
-        <select data-copyto="${id}"><option value="">—</option>${PROFILES.filter((k) => k !== (cfg.editProfile || 'default')).map((k) => `<option value="${k}">${t.prof[k]}</option>`).join('')}</select></div>
-    </section>`;
+        <select data-copyto="${id}"><option value="">—</option>${PROFILES.filter((k) => k !== (cfg.editProfile || 'default')).map((k) => `<option value="${k}">${t.prof[k]}</option>`).join('')}</select></div>`;
+    $('#pv').prepend(frame);
+    sendPreview();
+  }
+
+  function sendPreview() {
+    if (!frame || !frameReady || !cfg || !frame.contentWindow) return;
+    const o = cfg.overlays[sel];
+    frame.contentWindow.postMessage({ id: sel, overlay: o, lang: cfg.language, state: lastPreview }, '*');
   }
 
   document.addEventListener('click', (e) => {
@@ -158,6 +178,8 @@
     else if (b.id === 'updBtn') api.installUpdate();
     else if (b.id === 'checkUpd') api.checkUpdate();
     else if (b.id === 'logos') api.openLogos();
+    else if (b.dataset.pick) { sel = b.dataset.pick; try { localStorage.setItem('sel', sel); } catch (err) { /* ok */ } render(); }
+    else if (b.dataset.choice) api.setOption(b.dataset.id, b.dataset.choice, b.dataset.val);
     else if (b.dataset.anchor) api.anchor(b.dataset.id, b.dataset.anchor);
     else if (b.dataset.nudge) { const [dx, dy] = b.dataset.nudge.split(',').map(Number); api.nudge(b.dataset.id, dx, dy); }
     else if (b.dataset.reset) api.reset(b.dataset.reset);
@@ -172,14 +194,14 @@
     else if (el.id === 'margin') api.setMargin(el.value);
     else if (el.dataset.enable) api.setEnabled(el.dataset.enable, el.checked);
     else if (el.dataset.opt) api.setOption(el.dataset.id, el.dataset.opt, el.checked);
-    else if (el.dataset.choice) api.setOption(el.dataset.id, el.dataset.choice, el.value);
     else if (el.id === 'onlyInCar') api.setOnlyInCar(el.checked);
     else if (el.dataset.scale) api.setScale(el.dataset.scale, Number(el.value) / 100);
     else if (el.dataset.num) api.setOption(el.dataset.id, el.dataset.num, Number(el.value));
     else if (el.dataset.copyto && el.value) { api.copyOverlay(el.dataset.copyto, el.value); el.options[0].textContent = tr().copied; el.value = ''; }
   });
   document.addEventListener('input', (e) => {
-    if (e.target.dataset.scale || e.target.dataset.num) e.target.nextElementSibling.textContent = `${e.target.value}%`;
+    if (e.target.dataset.scale) $('#scaleTxt').textContent = e.target.value;
+    if (e.target.dataset.num) e.target.nextElementSibling.textContent = `${e.target.value}%`;
   });
 
   // ---------- atualização ----------
@@ -196,9 +218,10 @@
     const c = $('#checkUpd'); c.textContent = t.check; c.classList.toggle('hidden', upd.state === 'dev');
   }
   if (api.getUpdate) {
-    api.getUpdate().then((u) => { upd = u; renderUpdate(); });
-    api.onUpdate((u) => { upd = u; renderUpdate(); });
+    api.getUpdate().then((u) => { upd = u; if (cfg) renderUpdate(); });
+    api.onUpdate((u) => { upd = u; if (cfg) renderUpdate(); });
   }
+  if (api.onPreview) api.onPreview((st) => { lastPreview = st; sendPreview(); });
 
   api.get().then((c) => { cfg = c; status = c.status; render(); });
   api.onConfig((c) => { cfg = { ...c, status }; render(); });

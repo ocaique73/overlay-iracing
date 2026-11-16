@@ -37,5 +37,6 @@ contextBridge.exposeInMainWorld('panelAPI', {
   onUpdate: (cb) => ipcRenderer.on('update:state', (e, u) => cb(u)),
   checkUpdate: () => ipcRenderer.send('update:check'),
   installUpdate: () => ipcRenderer.send('update:install'),
+  onPreview: (cb) => ipcRenderer.on('panel:preview', (e, st) => cb(st)),
 });
 

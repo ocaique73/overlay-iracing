@@ -2,29 +2,38 @@
 <html lang="pt">
 <head>
   <meta charset="utf-8">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' file: data:; style-src 'self' 'unsafe-inline'; script-src 'self'; frame-src 'self'">
   <title>Overlay iRacing</title>
   <link rel="stylesheet" href="panel.css">
 </head>
 <body>
   <header>
-    <div class="logo"><span>OVERLAY</span> iRacing</div>
+    <div class="brand">
+      <svg width="30" height="30" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="16" fill="#17191f"/><rect x="0.75" y="0.75" width="62.5" height="62.5" rx="15.25" fill="none" stroke="#2a2d35" stroke-width="1.5"/><rect x="8" y="22" width="20" height="6" rx="3" fill="#c8102e"/><rect x="14" y="34" width="14" height="6" rx="3" fill="#c8102e"/><g transform="translate(33 17) skewX(-12)"><rect width="22" height="30" rx="3" fill="#e9ebef"/><rect width="11" height="10" fill="#17191f"/><rect x="11" y="10" width="11" height="10" fill="#17191f"/><rect y="20" width="11" height="10" fill="#17191f"/></g></svg>
+      <span class="word">OVER<b>LAY</b></span>
+    </div>
     <div id="status" class="status"></div>
     <div class="spacer"></div>
+    <button id="updBtn" class="upd hidden"></button>
     <label class="field"><span data-t="language"></span>
       <select id="lang"><option value="pt">Português</option><option value="en">English</option><option value="es">Español</option></select>
     </label>
     <label class="switch"><input type="checkbox" id="demo"><i></i><span data-t="demo"></span></label>
-    <button id="updBtn" class="upd hidden"></button>
     <button id="lock" class="lock"></button>
   </header>
-  <div class="hint" id="hint"></div>
-  <div class="profiles" id="profiles"></div>
-  <main id="list"></main>
+  <div class="hint hidden" id="hint"></div>
+  <div class="app">
+    <aside id="side">
+      <div id="profiles"></div>
+      <div class="sidelbl" data-t="overlaysLbl"></div>
+      <div id="list"></div>
+    </aside>
+    <main id="detail"></main>
+  </div>
   <footer>
     <label class="field"><span data-t="margin"></span><input type="number" id="margin" min="0" max="200" step="2"> px</label>
     <label class="switch"><input type="checkbox" id="onlyInCar"><i></i><span id="onlyInCarLbl"></span></label>
-    <button id="logos" class="ghost" data-t="logos"></button>
+    <button id="logos" class="ghost small" data-t="logos"></button>
     <span class="ver"><span id="verTxt"></span> <button id="checkUpd" class="ghost small"></button></span>
   </footer>
   <script src="panel.js"></script>
