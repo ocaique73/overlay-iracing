@@ -358,7 +358,7 @@
       const showList = (!inc.driving || ctx.edit) && list.length;
       const rows = showList ? `<div class="inclist">${list.map((r) =>
         `<div class="incrow"><b class="tnum">${r.times}×</b><span>${esc(t.warn[r.kind] || t.warn.incident)}</span><i class="tnum">${r.points}x</i></div>`).join('')}</div>` : '';
-      el.innerHTML = `<div class="incwrap"><div class="inc${warn}"><span>${esc(t.incidents)}</span><div><b class="tnum">${inc.count}x</b>${lim}</div></div>${rows}</div>`;
+      el.innerHTML = `<div class="incwrap${rows ? ' open' : ''}"><div class="inc${warn}"><span>${esc(t.incidents)}</span><div><b class="tnum">${inc.count}x</b>${lim}</div></div>${rows}</div>`;
     },
   };
 

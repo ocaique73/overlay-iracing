@@ -236,12 +236,14 @@ body[data-overlay="fps"] .anchor-grid, body[data-overlay="fps"] .frame-label { d
 .fsvg.over { overflow: visible; }
 .flags:has(.fsvg.over) { padding-top: 7px; }
 
-/* incidentes: número em cima; fora da corrida, o resumo de cada tipo embaixo, num bloco só */
-.incwrap { height: 100%; display: flex; flex-direction: column; align-items: flex-start; gap: 4px; }
-.incwrap .inc { height: auto; flex: 0 0 56px; width: 92px; }
-.inclist { width: 100%; display: flex; flex-direction: column; overflow: hidden; border-radius: var(--radius); background: var(--bg); padding: 2px 0; }
-.inclist .incrow { display: flex; align-items: center; gap: 8px; padding: 5px 10px; font-size: 12.5px; font-weight: 700; color: #e6e8ec; white-space: nowrap; }
-.inclist .incrow + .incrow { border-top: 1px solid rgba(255,255,255,0.07); }
+/* incidentes: um cartão só. Correndo: só o número (cartão estreito). Parado: o mesmo cartão abre com o resumo embaixo */
+.incwrap { width: 92px; max-height: 100%; display: flex; flex-direction: column; border-radius: var(--radius); background: var(--bg); overflow: hidden; }
+.incwrap.open { width: 100%; }
+.incwrap .inc { height: 56px; flex: 0 0 56px; background: transparent; border-radius: 0; }
+.incwrap.open .inc { flex-direction: row; justify-content: space-between; padding: 0 12px; }
+.inclist { display: flex; flex-direction: column; overflow: hidden; border-top: 1px solid rgba(255,255,255,0.08); }
+.inclist .incrow { display: flex; align-items: center; gap: 8px; padding: 6px 12px; font-size: 12.5px; font-weight: 700; color: #e6e8ec; white-space: nowrap; }
+.inclist .incrow + .incrow { border-top: 1px solid rgba(255,255,255,0.06); }
 .inclist .incrow b { color: #ff9f1a; font-size: 13px; }
 .inclist .incrow span { flex: 1; overflow: hidden; text-overflow: ellipsis; }
 .inclist .incrow i { font-style: normal; color: var(--muted); font-size: 11.5px; }
