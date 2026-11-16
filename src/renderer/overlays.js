@@ -256,9 +256,12 @@
         ${oneFlag(kind, id, ' transform="translate(30 3) scale(.72) rotate(14 4 39)"')}
         ${oneFlag(kind, id, ' transform="translate(2 7) scale(.72) rotate(-14 4 39)"')}</svg>`;
     }
-    // agitada: risquinhos de movimento do lado do pano (e o pano balança)
-    const motion = WAVING.has(kind) ? '<path d="M58 9 q3 5 0 10 M61.5 6 q4.5 8 0 16" fill="none" stroke="#ffd200" stroke-width="1.6" stroke-linecap="round" opacity=".8"/>' : '';
-    return `<svg class="fsvg" viewBox="0 0 ${motion ? 64 : 60} 40" aria-hidden="true">${defs}${oneFlag(kind, id)}${motion}</svg>`;
+    // amarela agitada: uma bandeira só, inclinada como as da neutralização (e o pano balança)
+    if (kind === 'yellowWaving') {
+      return `<svg class="fsvg" viewBox="0 0 64 44" aria-hidden="true">${defs}
+        ${oneFlag(kind, id, ' transform="translate(9 1) scale(.96) rotate(-14 4 39)"')}</svg>`;
+    }
+    return `<svg class="fsvg" viewBox="0 0 60 40" aria-hidden="true">${defs}${oneFlag(kind, id)}</svg>`;
   }
   const FLAG_TITLE_SIDE = {
     yellow: '#ffd200', yellowWaving: '#ffd200', caution: '#ffd200', cautionWaving: '#ffd200', green: '#3ddc6e',
