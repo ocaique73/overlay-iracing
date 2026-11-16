@@ -150,12 +150,14 @@
     // mantém o iframe (não recarrega a cada clique)
     if (!frame) { frame = document.createElement('iframe'); frame.src = 'preview.html'; frame.addEventListener('load', () => { frameReady = true; sendPreview(); }); }
     d.innerHTML = `<div class="dhead"><h1>${t.names[id]}</h1><span class="spacer"></span><button class="ghost small" data-reset="${id}">${t.reset}</button></div>
+      <div class="toprow">
       <div class="preview" id="pv"><span class="plbl">${t.preview.toUpperCase()}</span>${o.enabled ? '' : `<div class="poff">${t.previewOff}</div>`}</div>
       <div class="ctrls">
         <div class="box"><span class="lbl">${t.position}</span><div class="grid9">${ANCHORS.map((a) => `<button data-anchor="${a}" data-id="${id}" title="${a}"></button>`).join('')}</div></div>
         <div class="box"><span class="lbl">${t.nudge}</span><div class="arrows">
           <button class="u" data-nudge="0,-5" data-id="${id}">▲</button><button class="l" data-nudge="-5,0" data-id="${id}">◀</button>
           <button class="d" data-nudge="0,5" data-id="${id}">▼</button><button class="r" data-nudge="5,0" data-id="${id}">▶</button></div></div>
+      </div>
       </div>
       <div class="opts"><div class="opt"><span class="on">${t.scale}</span>
         <input class="wide" type="range" min="40" max="300" step="5" value="${scale}" data-scale="${id}"><b class="sval"><span id="scaleTxt">${scale}</span>%</b></div></div>
