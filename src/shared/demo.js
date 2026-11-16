@@ -98,6 +98,7 @@
         CarIdxLapDistPct: pct, CarIdxLap: lap, CarIdxLapCompleted: lapc, CarIdxPosition: pos,
         CarIdxClassPosition: cpos, CarIdxLastLapTime: last, CarIdxBestLapTime: best,
         CarIdxOnPitRoad: pit, CarIdxTrackSurface: surf,
+        CarIdxTireCompound: this.cars.map((c, i) => (i % 7 === 3 ? 1 : 0)), CarIdxP2P_Count: this.cars.map(() => -1), CarIdxFastRepairsUsed: this.cars.map((c, i) => (i % 5 === 2 ? 1 : 0)),
         CarLeftRight: sideNow ? (rel >= 0 ? 3 : 3) : 1,
         Lap: lap[this.player], LapCompleted: lapc[this.player], LapLastLapTime: this.playerLastShown, LapBestLapTime: p.best,
         LapCurrentLapTime: (p.dist - Math.floor(p.dist)) * p.lapTime * (1 + Math.sin(this.time / 9) * 0.006), SessionState: 4,
@@ -130,7 +131,7 @@
         SplitTimeInfo: { Sectors: [{ SectorNum: 0, SectorStartPct: 0 }, { SectorNum: 1, SectorStartPct: 0.33 }, { SectorNum: 2, SectorStartPct: 0.67 }] },
         DriverInfo: {
           DriverCarIdx: this.player, DriverCarRedLine: 8800, DriverCarSLFirstRPM: 6500,
-          DriverCarSLShiftRPM: 8000, DriverCarSLLastRPM: 8300, DriverCarSLBlinkRPM: 8500, DriverCarFuelMaxLtr: 100, DriverCarMaxFuelPct: 1, Drivers: drivers,
+          DriverCarSLShiftRPM: 8000, DriverCarSLLastRPM: 8300, DriverCarSLBlinkRPM: 8500, DriverTires: [{ TireIndex: 0, TireCompoundType: 'Dry' }, { TireIndex: 1, TireCompoundType: 'Wet' }], DriverCarFuelMaxLtr: 100, DriverCarMaxFuelPct: 1, Drivers: drivers,
         },
       };
     }

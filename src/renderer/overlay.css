@@ -247,3 +247,9 @@ body[data-overlay="fps"] .anchor-grid, body[data-overlay="fps"] .frame-label { d
 .inclist .incrow b { color: #ff9f1a; font-size: 13px; }
 .inclist .incrow span { flex: 1; overflow: hidden; text-overflow: ellipsis; }
 .inclist .incrow i { font-style: normal; color: var(--muted); font-size: 11.5px; }
+
+/* classificação: pneu, push-to-pass, reparos rápidos */
+.st-row .tcmp { justify-self: center; width: 18px; height: 18px; border-radius: 50%; border: 2px solid #c9ced6; font-size: 10px; font-weight: 900; display: flex; align-items: center; justify-content: center; color: #fff; }
+.st-row .tcmp.wet { border-color: #2d8cff; color: #6fb2ff; }
+.st-row .xcol { text-align: center; font-size: 12px; font-weight: 700; color: #c9ced6; }
+.st-row .xcol small { font-size: 9px; color: var(--muted); margin-left: 1px; }

@@ -40,6 +40,15 @@
     return `<div class="time tnum ${purple ? 'purple' : ''}">${fmtLap(d.best)}</div>`;
   }
 
+  // pneu em uso: letra do composto (S seco, M médio, H duro, W chuva…), azul quando é de chuva
+  function tireCell(d) {
+    if (d.tire < 0) return '<span></span>';
+    const n = (d.tireName || '').toLowerCase();
+    const wet = /wet|rain|chuva|inter/.test(n);
+    const letter = n ? n[0].toUpperCase() : String(d.tire);
+    return `<span class="tcmp ${wet ? 'wet' : ''}" title="${esc(d.tireName || '')}">${esc(letter)}</span>`;
+  }
+
   function gapText(d, t) {
     if (d.pos === 1) return '';
     if (d.gapLaps > 0) return `+${d.gapLaps} ${t.lapShort}`;
@@ -58,10 +67,13 @@
       if (o.license) cols.push('46px');
       if (o.irating) cols.push('38px');
       if (o.irGain) cols.push('34px');
+      if (o.tireCmp) cols.push('22px');
+      if (o.p2p) cols.push('30px');
+      if (o.fastRepairs) cols.push('30px');
       if (o.gap) cols.push('54px');
       cols.push('72px');
       const base = 28 + 3 + 150 + (o.brand !== false ? 34 : 0) + (o.license ? 52 : 0) + (o.irating ? 44 : 0)
-        + (o.irGain ? 40 : 0) + (o.gap ? 60 : 0) + 78 + 12;
+        + (o.irGain ? 40 : 0) + (o.gap ? 60 : 0) + (o.tireCmp ? 28 : 0) + (o.p2p ? 36 : 0) + (o.fastRepairs ? 36 : 0) + 78 + 12;
       const showSectors = ctx.w >= base + nSec * 52;
       if (showSectors) for (let i = 0; i < nSec; i++) cols.push('46px');
       const grid = `grid-template-columns:${cols.join(' ')}`;
@@ -98,6 +110,9 @@
             ${o.license ? `<div>${licBadge(d.licClass, d.licSr)}</div>` : ''}
             ${o.irating ? `<div><span class="ir">${d.irating ? (d.irating / 1000).toFixed(1) + 'k' : '-'}</span></div>` : ''}
             ${o.irGain ? `<span class="irg tnum ${d.irDelta > 0 ? 'up' : d.irDelta < 0 ? 'down' : ''}">${d.irDelta === null || d.irDelta === undefined ? '' : (d.irDelta > 0 ? '+' : '') + d.irDelta}</span>` : ''}
+            ${o.tireCmp ? tireCell(d) : ''}
+            ${o.p2p ? `<span class="xcol tnum" title="Push-to-pass">${d.p2p >= 0 ? d.p2p : ''}</span>` : ''}
+            ${o.fastRepairs ? `<span class="xcol tnum">${d.fastRepairs > 0 ? `${d.fastRepairs}<small>R</small>` : ''}</span>` : ''}
             ${o.gap ? `<span class="gapc tnum">${cls.id === s.playerClassId ? gapText(d, ctx.t) : ''}</span>` : ''}
             ${timeCell(d, cls, ctx.now)}
             ${secs}

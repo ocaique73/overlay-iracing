@@ -7,7 +7,7 @@ const path = require('path');
 // pos: posição padrão relativa à tela principal (fração da largura/altura) usada na primeira vez.
 const OVERLAYS = {
   standings: { w: 380, h: 330, enabled: true, pos: { anchor: 'top-left' },
-    options: { outOfCar: true, license: true, irating: false, brand: true, gap: false, irGain: false, sectorsMode: 'best' } },
+    options: { outOfCar: true, license: true, irating: false, brand: true, gap: false, irGain: false, tireCmp: false, p2p: false, fastRepairs: false, sectorsMode: 'best' } },
   relative: { w: 360, h: 250, enabled: true, pos: { anchor: 'bottom-left', dy: -260 },
     options: { outOfCar: false, license: true, brand: true } },
   radar: { w: 180, h: 200, enabled: true, pos: { cx: 0.5, cy: 0.25 },
