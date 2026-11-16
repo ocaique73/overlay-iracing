@@ -121,6 +121,7 @@
       this.ref = null; // melhor volta válida: { pts, time }
       this.prevPct = -1;
       this.warn = { offAt: -99, incPrev: null, incAt: -99, incDelta: 0 };
+      this.incEvents = [];
       this.pen = { last: null, reason: null, pitOverAt: -99, offTrackAt: -99, raceStartAt: -99, prevState: -1 };
     }
 
@@ -548,6 +549,10 @@
       }
       panel.tireProfile = tireProfileOf(player);
 
+      const warning = this.warningOf(t, incidents, sessionTime, !isRace && (this.lapOffTrack || incidents > this.lapIncidentStart));
+      // "correndo" = no carro, na pista, fora do pit e a sessão ainda não acabou; senão o overlay de incidentes mostra o resumo
+      const driving = !!t.IsOnTrack && !onPitRoad && num(t.SessionState, 4) < 5;
+
       return {
         connected: true,
         nowMs,
@@ -563,8 +568,9 @@
         relative,
         radar,
         flags: { list: flagList, primary, penalty, reason: this.pen.reason },
-        incidents: { count: incidents, limit: incidentLimit },
-        warning: this.warningOf(t, incidents, sessionTime, !isRace && (this.lapOffTrack || incidents > this.lapIncidentStart)),
+        incidents: { count: incidents, limit: incidentLimit, driving, breakdown: this.incBreakdown() },
+        warning,
+        incWarning: this.incWarn,
         laps: { list: this.laps.slice(), best: logBest },
         delta,
         session,
@@ -579,17 +585,35 @@
       const off = surf === 0 && !!t.IsOnTrack;
       if (off) w.offAt = now;
       if (w.incPrev === null || incidents < w.incPrev) w.incPrev = incidents;
-      if (incidents > w.incPrev) { w.incDelta = incidents - w.incPrev; w.incAt = now; w.incPrev = incidents; }
-      // só o aviso de volta inválida vai pra tela (incidentes já têm o overlay deles)
-      if (lapInvalid && t.IsOnTrack) return { kind: 'lapInvalid', inc: 0, sticky: true };
-      if (now - w.incAt < 5) {
-        const k = { 1: 'offTrack', 2: 'lostControl', 4: 'contact' }[w.incDelta] || 'incident';
-        return { kind: k, inc: w.incDelta };
+      if (incidents > w.incPrev) {
+        const d = incidents - w.incPrev;
+        w.incDelta = d; w.incAt = now; w.incPrev = incidents;
+        // o iRacing às vezes sobe 1x e logo depois "promove" pra 2x: junta o que vier em até 2,5 s num incidente só
+        const last = this.incEvents[this.incEvents.length - 1];
+        if (last && now - last.at < 2.5) { last.points += d; last.at = now; } else this.incEvents.push({ points: d, at: now });
       }
+      // aviso rápido de incidente novo: aparece por 5 s e some (o contador continua no overlay de Incidentes)
+      const last = this.incEvents[this.incEvents.length - 1];
+      this.incWarn = last && now - last.at < INC_WARN_S
+        ? { kind: { 1: 'offTrack', 2: 'lostControl', 4: 'contact' }[last.points] || 'incident', inc: last.points } : null;
+      // volta inválida (treino/quali): fica até cruzar a linha
+      if (lapInvalid && t.IsOnTrack) return { kind: 'lapInvalid', inc: 0, sticky: true };
       if (off || now - w.offAt < 2) return { kind: 'offTrackNow', inc: 0 };
       // treino/quali: a volta não vale mais — fica avisando até cruzar a linha
       if (lapInvalid && t.IsOnTrack) return { kind: 'lapInvalid', inc: 0, sticky: true };
       return null;
+    }
+
+    // resumo dos incidentes da sessão: quantas vezes cada tipo (1x saída de pista, 2x perda de controle, 4x contato)
+    incBreakdown() {
+      const kinds = { 1: 'offTrack', 2: 'lostControl', 4: 'contact' };
+      const map = {};
+      for (const e of this.incEvents) {
+        const k = kinds[e.points] || 'incident';
+        if (!map[k]) map[k] = { kind: k, times: 0, points: 0 };
+        map[k].times += 1; map[k].points += e.points;
+      }
+      return Object.values(map).sort((a, b) => b.points - a.points);
     }
 
     // Grava a volta atual (fração da pista x tempo) e devolve o delta contra a referência.
@@ -733,6 +757,7 @@
   }
 
   const GAP_CP = 100;
+  const INC_WARN_S = 5; // segundos que o aviso de incidente fica na tela
 
   // estimativa de iRating (fórmula usada pela comunidade); positions = posição na classe (1 = primeiro)
   function iratingDeltas(list) {

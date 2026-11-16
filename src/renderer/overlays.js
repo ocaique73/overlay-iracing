@@ -337,8 +337,10 @@
       // aviso de saída de pista / incidente embaixo das bandeiras
       let w = s.warning;
       if (!w && ctx.edit && s.sample) w = { kind: 'lapInvalid', inc: 0 };
-      // só a volta inválida aparece aqui (incidentes ficam no overlay de Incidentes)
+      // volta inválida fica até cruzar a linha; o aviso de incidente aparece por 5 s e some
       if (w && w.kind === 'lapInvalid' && ctx.opts.warnings !== false) parts.push(warnCard(w, t, side, ctx.opts.flagSide));
+      const iw = s.incWarning || (ctx.edit && s.sample ? { kind: 'lostControl', inc: 2 } : null);
+      if (iw && ctx.opts.incWarnings !== false) parts.push(warnCard(iw, t, side, ctx.opts.flagSide));
       const html = `<div class="flags">${parts.join('')}</div>`;
       if (el.__html !== html) { el.innerHTML = html; el.__html = html; } // só troca quando muda
     },
@@ -350,7 +352,13 @@
       const t = ctx.t; const inc = s.incidents || { count: 0, limit: 0 };
       const lim = ctx.opts.limit !== false && inc.limit ? `<span class="tnum lim">/ ${inc.limit}</span>` : '';
       const warn = inc.limit && inc.count >= inc.limit * 0.75 ? ' warn' : '';
-      el.innerHTML = `<div class="inc${warn}"><span>${esc(t.incidents)}</span><div><b class="tnum">${inc.count}x</b>${lim}</div></div>`;
+      // correndo: só o número. No box, fora do carro ou depois da corrida: o resumo de cada tipo embaixo
+      let list = inc.breakdown || [];
+      if (ctx.edit && s.sample && !list.length) list = [{ kind: 'lostControl', times: 2, points: 4 }, { kind: 'offTrack', times: 1, points: 1 }];
+      const showList = (!inc.driving || ctx.edit) && list.length;
+      const rows = showList ? `<div class="inclist">${list.map((r) =>
+        `<div class="ir"><b class="tnum">${r.times}×</b><span>${esc(t.warn[r.kind] || t.warn.incident)}</span><i class="tnum">${r.points}x</i></div>`).join('')}</div>` : '';
+      el.innerHTML = `<div class="incwrap"><div class="inc${warn}"><span>${esc(t.incidents)}</span><div><b class="tnum">${inc.count}x</b>${lim}</div></div>${rows}</div>`;
     },
   };
 

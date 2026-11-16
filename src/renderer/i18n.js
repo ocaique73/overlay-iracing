@@ -12,7 +12,7 @@
       flag: {
         green: ['PISTA LIVRE', 'Bandeira verde'], yellow: ['ACIDENTE À FRENTE', 'Bandeira amarela'],
         yellowWaving: ['PERIGO, REDUZA', 'Amarela agitada'], caution: ['NEUTRALIZAÇÃO', 'Safety car na pista'],
-        cautionWaving: ['NEUTRALIZAÇÃO', 'Safety car na pista'], blue: ['DEIXE PASSAR', 'Bandeira azul'],
+        cautionWaving: ['NEUTRALIZAÇÃO', 'Safety car acionado agora'], blue: ['DEIXE PASSAR', 'Bandeira azul'],
         white: ['ÚLTIMA VOLTA', 'Bandeira branca'], checkered: ['FIM DA SESSÃO', 'Bandeira quadriculada'],
         red: ['SESSÃO PARADA', 'Bandeira vermelha'], debris: ['DETRITOS NA PISTA', 'Bandeira de detritos'],
       },
@@ -41,7 +41,7 @@
       flag: {
         green: ['RESUME RACING', 'Green flag'], yellow: ['ACCIDENT AHEAD', 'Yellow flag'],
         yellowWaving: ['DANGER, SLOW DOWN', 'Waving yellow'], caution: ['FULL COURSE CAUTION', 'Safety car on track'],
-        cautionWaving: ['FULL COURSE CAUTION', 'Safety car on track'], blue: ['LET FASTER CAR BY', 'Blue flag'],
+        cautionWaving: ['FULL COURSE CAUTION', 'Safety car just called'], blue: ['LET FASTER CAR BY', 'Blue flag'],
         white: ['ONE MORE LAP', 'White flag'], checkered: ['SESSION IS OVER', 'Checkered flag'],
         red: ['SESSION STOPPED', 'Red flag'], debris: ['DEBRIS ON TRACK', 'Debris flag'],
       },
@@ -70,7 +70,7 @@
       flag: {
         green: ['PISTA LIBRE', 'Bandera verde'], yellow: ['ACCIDENTE ADELANTE', 'Bandera amarilla'],
         yellowWaving: ['PELIGRO, REDUCE', 'Amarilla agitada'], caution: ['NEUTRALIZACIÓN', 'Safety car en pista'],
-        cautionWaving: ['NEUTRALIZACIÓN', 'Safety car en pista'], blue: ['DEJA PASAR', 'Bandera azul'],
+        cautionWaving: ['NEUTRALIZACIÓN', 'Safety car recién activado'], blue: ['DEJA PASAR', 'Bandera azul'],
         white: ['ÚLTIMA VUELTA', 'Bandera blanca'], checkered: ['FIN DE LA SESIÓN', 'Bandera a cuadros'],
         red: ['SESIÓN DETENIDA', 'Bandera roja'], debris: ['RESTOS EN PISTA', 'Bandera de restos'],
       },
