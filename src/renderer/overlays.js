@@ -257,14 +257,15 @@
   // transparente separado à esquerda ou à direita, o desenho da bandeira
   function flagCardSide(kind, texts, reason, side) {
     return `<div class="fside ${side === 'right' ? 'right' : ''}">
-      <div class="fbox">${flagSvg(kind)}</div><div class="fcard">${flagCard(kind, texts, reason)}</div></div>`;
+      <div class="fbox">${flagSvg(kind)}</div><div class="fcard">${flagCard(kind, texts, reason, true)}</div></div>`;
   }
 
   // bandeiras com desenho (quadriculada, detritos, advertência) não ficam atrás do texto:
   // o desenho vai num quadradinho à esquerda e a faixa fica escura, com texto branco
   const PATTERNED = new Set(['checkered', 'debris', 'furled']);
-  function flagCard(kind, texts, reason) {
+  function flagCard(kind, texts, reason, noIcon) {
     const [title, sub] = texts;
+    const icon = noIcon ? '' : FLAG_ICON; // no visual "bandeira ao lado" o desenho já está fora
     const why = reason ? `<div class="reason">${esc(reason)}</div>` : '';
     const [tc, bg] = FLAG_COLORS[kind] || ['#fff', '#444'];
     // detritos e quadriculada: a faixa de baixo é só a bandeira (o título já diz o que é)
@@ -274,11 +275,11 @@
     }
     if (PATTERNED.has(kind)) {
       return `<div class="flag"><div class="title" style="color:${tc}">${esc(title)}</div>
-        <div class="bar" style="background:#0c0d10;color:#fff"><span class="swatch" style="background:${bg}"></span><span>${esc(sub)}</span></div>${why}</div>`;
+        <div class="bar" style="background:#0c0d10;color:#fff">${noIcon ? '' : `<span class="swatch" style="background:${bg}"></span>`}<span>${esc(sub)}</span></div>${why}</div>`;
     }
     const barText = (kind === 'black' || kind === 'disqualify') ? '#fff' : '#111';
     return `<div class="flag"><div class="title" style="color:${tc}">${esc(title)}</div>
-      <div class="bar" style="background:${bg};color:${barText}">${FLAG_ICON}<span>${esc(sub)}</span></div>${why}</div>`;
+      <div class="bar" style="background:${bg};color:${barText}">${icon}<span>${esc(sub)}</span></div>${why}</div>`;
   }
 
   const flags = {
