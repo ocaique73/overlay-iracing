@@ -17,7 +17,7 @@
       inUse: 'Em uso agora', delProfile: 'Apagar este layout',
       copyFrom: 'Copiar tudo de', copyBtn: 'Copiar', copyTo: 'Copiar este overlay pro layout', copied: 'Copiado!',
       opt: {
-        outOfCar: 'Mostrar fora do carro (box/garagem)', warnings: 'Aviso de volta inválida (treino/quali)', incWarnings: 'Aviso rápido de incidente (5 s)', flagStyle: 'Visual', flagSide: 'Lado da bandeira', license: 'Licença (A 3.2)', irating: 'iRating (2.8k)', brand: 'Marca do carro', gap: 'Gap até o líder (sua classe)', irGain: 'Previsão de iRating (+/−)', sectorsMode: 'Setores mostrados', style: 'Formato', incidentsSide: 'Incidentes do lado',
+        outOfCar: 'Mostrar fora do carro (box/garagem)', warnings: 'Aviso de volta inválida (treino/quali)', incWarnings: 'Aviso rápido de incidente (5 s)', flagStyle: 'Visual', flagSide: 'Lado da bandeira', license: 'Licença (A 3.2)', irating: 'iRating (2.8k)', brand: 'Marca do carro', gap: 'Gap até o líder (sua classe)', irGain: 'Previsão de iRating (+/−)', tireCmp: 'Pneu em uso (seco/chuva)', p2p: 'Push-to-pass restante', fastRepairs: 'Reparos rápidos usados', sectorsMode: 'Setores mostrados', style: 'Formato', incidentsSide: 'Incidentes do lado',
         hideWhenClear: 'Sumir quando não tiver carro perto', hideInQualify: 'Não mostrar no quali', opacity: 'Visibilidade', incidents: 'Mostrar incidentes',
         name: 'Nome da sessão', time: 'Tempo restante', laps: 'Voltas',
         sessionOptimal: 'Melhor otimizada da sessão', sessionBest: 'Melhor volta da sessão', predicted: 'Volta prevista', personalBest: 'Recorde pessoal',
@@ -39,7 +39,7 @@
       inUse: 'In use now', delProfile: 'Delete this layout',
       copyFrom: 'Copy everything from', copyBtn: 'Copy', copyTo: 'Copy this overlay to layout', copied: 'Copied!',
       opt: {
-        outOfCar: 'Show outside the car (pits/garage)', warnings: 'Invalid lap warning (practice/qualifying)', incWarnings: 'Quick incident warning (5 s)', flagStyle: 'Look', flagSide: 'Flag side', license: 'License (A 3.2)', irating: 'iRating (2.8k)', brand: 'Car brand', gap: 'Gap to leader (your class)', irGain: 'iRating prediction (+/−)', sectorsMode: 'Sectors shown', style: 'Style', incidentsSide: 'Incidents side',
+        outOfCar: 'Show outside the car (pits/garage)', warnings: 'Invalid lap warning (practice/qualifying)', incWarnings: 'Quick incident warning (5 s)', flagStyle: 'Look', flagSide: 'Flag side', license: 'License (A 3.2)', irating: 'iRating (2.8k)', brand: 'Car brand', gap: 'Gap to leader (your class)', irGain: 'iRating prediction (+/−)', tireCmp: 'Tire in use (dry/wet)', p2p: 'Push-to-pass left', fastRepairs: 'Fast repairs used', sectorsMode: 'Sectors shown', style: 'Style', incidentsSide: 'Incidents side',
         hideWhenClear: 'Hide when no car is near', hideInQualify: 'Hide in qualifying', opacity: 'Opacity', incidents: 'Show incidents',
         name: 'Session name', time: 'Time remaining', laps: 'Laps',
         sessionOptimal: 'Session optimal', sessionBest: 'Session best', predicted: 'Predicted lap', personalBest: 'Personal best',
@@ -61,7 +61,7 @@
       inUse: 'En uso ahora', delProfile: 'Borrar este diseño',
       copyFrom: 'Copiar todo de', copyBtn: 'Copiar', copyTo: 'Copiar este overlay al diseño', copied: '¡Copiado!',
       opt: {
-        outOfCar: 'Mostrar fuera del coche (boxes/garaje)', warnings: 'Aviso de vuelta inválida (práctica/clasificación)', incWarnings: 'Aviso rápido de incidente (5 s)', flagStyle: 'Estilo', flagSide: 'Lado de la bandera', license: 'Licencia (A 3.2)', irating: 'iRating (2.8k)', brand: 'Marca del coche', gap: 'Gap al líder (tu clase)', irGain: 'Previsión de iRating (+/−)', sectorsMode: 'Sectores mostrados', style: 'Formato', incidentsSide: 'Incidentes del lado',
+        outOfCar: 'Mostrar fuera del coche (boxes/garaje)', warnings: 'Aviso de vuelta inválida (práctica/clasificación)', incWarnings: 'Aviso rápido de incidente (5 s)', flagStyle: 'Estilo', flagSide: 'Lado de la bandera', license: 'Licencia (A 3.2)', irating: 'iRating (2.8k)', brand: 'Marca del coche', gap: 'Gap al líder (tu clase)', irGain: 'Previsión de iRating (+/−)', tireCmp: 'Neumático en uso (seco/lluvia)', p2p: 'Push-to-pass restante', fastRepairs: 'Reparaciones rápidas usadas', sectorsMode: 'Sectores mostrados', style: 'Formato', incidentsSide: 'Incidentes del lado',
         hideWhenClear: 'Ocultar sin coches cerca', hideInQualify: 'Ocultar en clasificación', opacity: 'Opacidad', incidents: 'Mostrar incidentes',
         name: 'Nombre de la sesión', time: 'Tiempo restante', laps: 'Vueltas',
         sessionOptimal: 'Óptima de la sesión', sessionBest: 'Mejor vuelta de la sesión', predicted: 'Vuelta prevista', personalBest: 'Récord personal',

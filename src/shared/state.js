@@ -156,6 +156,11 @@
       const lastLaps = arr(t.CarIdxLastLapTime);
       const bestLaps = arr(t.CarIdxBestLapTime);
       const onPit = arr(t.CarIdxOnPitRoad);
+      // dos outros carros o iRacing manda pneu em uso, push-to-pass e reparos rápidos (combustível não)
+      const tireCmp = arr(t.CarIdxTireCompound);
+      const p2pCount = arr(t.CarIdxP2P_Count);
+      const fastRep = arr(t.CarIdxFastRepairsUsed);
+      const tireNames = ((s.DriverInfo || {}).DriverTires || []).reduce((m, x) => { m[num(x.TireIndex, -1)] = String(x.TireCompoundType || ''); return m; }, {});
       const surface = arr(t.CarIdxTrackSurface);
 
       // ---------- pilotos ----------
@@ -196,6 +201,10 @@
           onPit: !!onPit[idx],
           inWorld: num(surface[idx], -1) !== -1,
           isPlayer: idx === playerIdx,
+          tire: tireCmp.length ? num(tireCmp[idx], -1) : -1,
+          tireName: tireCmp.length ? (tireNames[num(tireCmp[idx], -1)] || '') : '',
+          p2p: p2pCount.length ? num(p2pCount[idx], -1) : -1,
+          fastRepairs: fastRep.length ? num(fastRep[idx], 0) : 0,
         });
       }
       const byIdx = {};
@@ -783,6 +792,7 @@
       best: d.best, last: d.last, lastLapAt: d.lastLapAt,
       sectorsLast: d.sectorsLast.slice(), sectorsBest: d.sectorsBest.slice(),
       onPit: d.onPit, isPlayer: d.isPlayer, lapsDone: d.lapsDone,
+      tire: d.tire, tireName: d.tireName, p2p: d.p2p, fastRepairs: d.fastRepairs,
       gap: d.gap === undefined ? null : d.gap, gapLaps: d.gapLaps || 0, irDelta: d.irDelta === undefined ? null : d.irDelta,
     };
   }

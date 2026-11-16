@@ -21,7 +21,7 @@
   const q = new URLSearchParams(location.search);
   const lang = q.get('lang') || 'pt';
   const L = {
-    standings: [16, 16, q.get('gap') ? 480 : 380, 330, { license: true, irating: false, brand: true, gap: !!q.get('gap'), irGain: !!q.get('gap') }],
+    standings: [16, 16, q.get('gap') ? 560 : 380, 330, { license: true, irating: false, brand: true, gap: !!q.get('gap'), irGain: !!q.get('gap'), tireCmp: !!q.get('gap'), fastRepairs: !!q.get('gap') }],
     relative: [16, 760, 360, 250, { license: true, brand: true }],
     radar: [870, 170, 180, 200, { hideWhenClear: false, opacity: Number(q.get('op') || 50) }],
     flags: [600, 170, 260, 150, {}],
