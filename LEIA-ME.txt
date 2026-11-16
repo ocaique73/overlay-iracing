@@ -29,7 +29,7 @@ LAYOUTS POR SESSAO (Treino, Quali, Corrida)
 - Sessao sem layout proprio usa sempre o Padrao. "Apagar este layout" volta a usar o Padrao.
 
 OVERLAYS NOVOS
-- Setores (estilo LMU): S1/S2/S3 ficam roxo (melhor da classe), verde (seu melhor) ou amarelo (mais lento).
+- Setores: S1/S2/S3 ficam roxo (melhor da classe), verde (seu melhor) ou amarelo (mais lento).
 - Incidentes: separado da bandeira.
 - Limitador do pit: azul com limitador ligado; vermelho piscando se estiver no pit sem limitador.
 - Pneus (separado): se usar, desligue "Temperatura dos pneus" no Painel avancado.
