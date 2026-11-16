@@ -1,0 +1,37 @@
+OVERLAY iRACING - versao 0.4
+
+COMO USAR
+1. Extraia o zip numa pasta (ex.: Documentos\Overlay iRacing).
+2. Abra "Overlay iRacing.exe".
+3. Na primeira vez os overlays vem DESTRAVADOS, mostrando dados de exemplo pra voce posicionar.
+4. Com tudo no lugar, clique em "Destravado (editando)" no painel pra TRAVAR
+   (ou aperte Ctrl+Shift+L). Travado, o clique passa direto pro jogo.
+5. Abra o iRacing normalmente. Os overlays aparecem quando voce entrar numa sessao.
+
+IMPORTANTE
+- O iRacing precisa estar em janela sem borda (Full Screen desligado). Em tela cheia o Windows
+  nao deixa nenhum overlay aparecer por cima.
+- Destravado: arraste pra mover; cantos = tamanho; laterais de cima/baixo = mais ou menos linhas;
+  laterais esquerda/direita = mais ou menos colunas (ex.: setores na classificacao);
+  quadradinho 3x3 = encaixe automatico no monitor onde o overlay esta; setas do teclado = ajuste fino
+  (Shift + seta = 10 pixels).
+- Logos das marcas: o botao "Abrir pasta de logos das marcas" abre a pasta. Coloque imagens PNG com
+  o nome da marca (porsche.png, bmw.png, ferrari.png, mercedes.png, audi.png, mclaren.png, ford.png...).
+  Sem imagem, aparece a sigla da marca.
+- Modo demonstracao: liga uma corrida simulada pra testar sem o iRacing aberto.
+- O Windows pode mostrar o aviso "O Windows protegeu o computador" porque o programa nao tem
+  assinatura digital. Clique em "Mais informacoes" e depois "Executar assim mesmo".
+
+LAYOUTS POR SESSAO (Treino, Quali, Corrida)
+- No topo do painel tem "Layout: Padrao | + Treino | + Quali | + Corrida".
+- Clique em um deles pra criar um layout so pra aquele tipo de sessao (comeca como copia do Padrao)
+  e edite normalmente. A bolinha verde mostra qual layout esta em uso agora.
+- Sessao sem layout proprio usa sempre o Padrao. "Apagar este layout" volta a usar o Padrao.
+
+OVERLAYS NOVOS
+- Setores (estilo LMU): S1/S2/S3 ficam roxo (melhor da classe), verde (seu melhor) ou amarelo (mais lento).
+- Incidentes: separado da bandeira.
+- Limitador do pit: azul com limitador ligado; vermelho piscando se estiver no pit sem limitador.
+- Pneus (separado): se usar, desligue "Temperatura dos pneus" no Painel avancado.
+- Combustivel: consumo medio das ultimas voltas limpas (sem pit), quantas voltas da e quanto sobra
+  ou falta pro fim (precisa de 1 volta completa sem passar no pit pra comecar a calcular).

@@ -1,0 +1,76 @@
+{
+  "name": "overlay-iracing",
+  "version": "0.6.0",
+  "description": "Overlays para iRacing",
+  "main": "src/main/main.js",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --win nsis --x64 --publish never",
+    "release": "electron-builder --win nsis --x64 --publish always"
+  },
+  "keywords": [],
+  "author": "Caique",
+  "license": "ISC",
+  "dependencies": {
+    "electron-updater": "^6.8.11",
+    "js-yaml": "^4.3.2",
+    "koffi": "^2.16.3"
+  },
+  "devDependencies": {
+    "electron": "^39.8.10",
+    "electron-builder": "^26.18.0"
+  },
+  "productName": "Overlay iRacing",
+  "build": {
+    "appId": "br.caique.overlayiracing",
+    "productName": "Overlay iRacing",
+    "files": [
+      "src/**/*",
+      "package.json",
+      "!src/**/*.map"
+    ],
+    "asarUnpack": [
+      "node_modules/koffi/**"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "signAndEditExecutable": false
+    },
+    "directories": {
+      "output": "dist"
+    },
+    "extraFiles": [
+      {
+        "from": "LEIA-ME.txt",
+        "to": "LEIA-ME.txt"
+      }
+    ],
+    "nsis": {
+      "oneClick": true,
+      "perMachine": false,
+      "artifactName": "Overlay-iRacing-Setup-${version}.${ext}",
+      "shortcutName": "Overlay iRacing",
+      "createDesktopShortcut": true,
+      "deleteAppDataOnUninstall": false
+    },
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "ocaique73",
+        "repo": "overlay-iracing",
+        "releaseType": "release"
+      }
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ocaique73/overlay-iracing.git"
+  }
+}

@@ -1,0 +1,16 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><link rel="stylesheet" href="../src/renderer/overlay.css">
+<style>html,body{width:360px;height:200px;background:#4a6a8a}</style></head>
+<body><div id="content"></div><div id="frame"></div>
+<script src="../src/shared/demo.js"></script><script src="../src/shared/state.js"></script>
+<script src="../src/renderer/i18n.js"></script><script src="../src/renderer/common.js"></script>
+<script src="../src/renderer/overlays.js"></script>
+<script>history.replaceState(null,'','?id=relative');</script>
+<script src="../src/renderer/overlay.js"></script>
+<script>
+Common.setBundledBase('../src/renderer/logos');
+const d=new OverlayDemo.Demo(); const sb=new OverlayState.StateBuilder({}); let st;
+for(let i=0;i<30*120;i++){d.step(1/30); st=sb.build(d.telemetry(), d.session(), {nowMs:i*33});}
+st.sample=true;
+__overlayTest.applyConfig({id:'relative',overlay:{w:360,h:200,scale:1,options:{license:true,brand:true}},language:'pt',locked:false,dragMode:'s'});
+__overlayTest.setState(st);
+</script></body></html>
