@@ -301,6 +301,8 @@
       <rect x="28.2" y="15" width="3.6" height="12" rx="1.8" fill="#111"/><circle cx="30" cy="31.5" r="2.2" fill="#111"/></svg>`;
   }
   function warnCard(w, t, side, flagSide) {
+    // incidente: só o número e o tipo, numa linha compacta (como era antes, sem a linha do lado)
+    if (w.inc) return `<div class="inccard"><b class="tnum">+${w.inc}x</b><span>${esc(t.warn[w.kind])}</span></div>`;
     const red = w.kind === 'lapInvalid' || w.kind === 'offTrackNow';
     const title = w.inc ? `+${w.inc}x ${t.warnInc}` : t.warn[w.kind];
     const sub = w.inc ? t.warn[w.kind] : (t.warnSub[w.kind] || '');

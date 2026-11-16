@@ -231,3 +231,5 @@ body[data-overlay="fps"] .anchor-grid, body[data-overlay="fps"] .frame-label { d
 /* bandeira agitada: o pano balança (leve, só transform) */
 .fsvg .wv { transform-box: view-box; transform-origin: 6px 18px; animation: flagwave 0.9s ease-in-out infinite alternate; }
 @keyframes flagwave { from { transform: skewY(-4deg) scaleX(0.96); } to { transform: skewY(3deg) scaleX(1.02); } }
+.inccard { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: var(--radius); background: var(--bg); font-size: 15px; font-weight: 800; color: #fff; }
+.inccard b { color: #ff9f1a; font-size: 17px; }
