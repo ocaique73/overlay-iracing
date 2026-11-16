@@ -236,11 +236,12 @@ body[data-overlay="fps"] .anchor-grid, body[data-overlay="fps"] .frame-label { d
 .fsvg.over { overflow: visible; }
 .flags:has(.fsvg.over) { padding-top: 7px; }
 
-/* incidentes: número em cima; fora da corrida, o resumo de cada tipo embaixo */
-.incwrap { height: 100%; display: flex; flex-direction: column; gap: 4px; }
-.incwrap .inc { height: auto; flex: 0 0 56px; }
-.inclist { display: flex; flex-direction: column; gap: 3px; overflow: hidden; }
-.inclist .ir { display: flex; align-items: center; gap: 8px; padding: 5px 10px; border-radius: 8px; background: var(--bg); font-size: 12.5px; font-weight: 700; color: #e6e8ec; white-space: nowrap; }
-.inclist .ir b { color: #ff9f1a; font-size: 13px; }
-.inclist .ir span { flex: 1; overflow: hidden; text-overflow: ellipsis; }
-.inclist .ir i { font-style: normal; color: var(--muted); font-size: 11.5px; }
+/* incidentes: número em cima; fora da corrida, o resumo de cada tipo embaixo, num bloco só */
+.incwrap { height: 100%; display: flex; flex-direction: column; align-items: flex-start; gap: 4px; }
+.incwrap .inc { height: auto; flex: 0 0 56px; width: 92px; }
+.inclist { width: 100%; display: flex; flex-direction: column; overflow: hidden; border-radius: var(--radius); background: var(--bg); padding: 2px 0; }
+.inclist .incrow { display: flex; align-items: center; gap: 8px; padding: 5px 10px; font-size: 12.5px; font-weight: 700; color: #e6e8ec; white-space: nowrap; }
+.inclist .incrow + .incrow { border-top: 1px solid rgba(255,255,255,0.07); }
+.inclist .incrow b { color: #ff9f1a; font-size: 13px; }
+.inclist .incrow span { flex: 1; overflow: hidden; text-overflow: ellipsis; }
+.inclist .incrow i { font-style: normal; color: var(--muted); font-size: 11.5px; }

@@ -13,7 +13,7 @@ const OVERLAYS = {
   radar: { w: 180, h: 200, enabled: true, pos: { cx: 0.5, cy: 0.25 },
     options: { outOfCar: false, hideWhenClear: true, hideInQualify: true, opacity: 50 } },
   flags: { w: 270, h: 196, enabled: true, pos: { cx: 0.5, cy: 0.25, dx: -250 }, options: { outOfCar: false, flagStyle: 'band', flagSide: 'left', warnings: true, incWarnings: true } },
-  incidents: { w: 92, h: 60, enabled: true, pos: { cx: 0.5, cy: 0.25, dx: -430 }, options: { outOfCar: true, limit: true } },
+  incidents: { w: 210, h: 160, enabled: true, pos: { cx: 0.5, cy: 0.25, dx: -430 }, options: { outOfCar: true, limit: true } },
   session: { w: 270, h: 70, enabled: true, pos: { anchor: 'top-right' },
     options: { outOfCar: true, name: true, time: true, laps: true } },
   delta: { w: 300, h: 185, enabled: true, pos: { cx: 0.5, cy: 0.25, dx: 250 },
@@ -31,7 +31,7 @@ const OVERLAYS = {
 const PROFILE_KEYS = ['practice', 'qualify', 'race'];
 
 // completa um conjunto de overlays com os padrões e descarta opções que não existem mais
-function normalizeSet(saved, migrate, migSec, migInc) {
+function normalizeSet(saved, migrate, migSec, migInc, migInc3) {
   const out = {};
   for (const [id, def] of Object.entries(OVERLAYS)) {
     const cur = saved[id] || {};
@@ -40,6 +40,8 @@ function normalizeSet(saved, migrate, migSec, migInc) {
     if (migrate && id === 'flags' && cur.h && cur.h < 196) cur.h = 196;
     // setores ganhou o formato completo (tempos + barra): abre espaço pra ele, mantendo o centro
     if (migInc && id === 'incidents' && cur.options) cur.options.outOfCar = true;
+    // incidentes ganharam o resumo embaixo: abre espaço (o número continua no mesmo lugar, em cima à esquerda)
+    if (migInc3 && id === 'incidents' && (!cur.w || cur.w <= 120) && (!cur.h || cur.h <= 80)) { cur.w = 210; cur.h = 160; }
     if (migSec && id === 'sectors' && cur.w && cur.w <= 150 && cur.h && cur.h <= 58) {
       if (typeof cur.x === 'number') cur.x -= (230 - cur.w) / 2 * (cur.scale || 1);
       cur.w = 230; cur.h = 100;
@@ -98,12 +100,14 @@ class Config {
     const mig = !saved.flagsV2;
     const migSec = !saved.sectorsV3;
     const migInc = !saved.incidentsV2;
-    this.data.overlays = normalizeSet(saved.overlays || {}, mig, migSec, migInc);
+    const migInc3 = !saved.incidentsV3;
+    this.data.overlays = normalizeSet(saved.overlays || {}, mig, migSec, migInc, migInc3);
     const profiles = {};
-    for (const k of PROFILE_KEYS) profiles[k] = saved.profiles && saved.profiles[k] ? normalizeSet(saved.profiles[k], mig, migSec, migInc) : null;
+    for (const k of PROFILE_KEYS) profiles[k] = saved.profiles && saved.profiles[k] ? normalizeSet(saved.profiles[k], mig, migSec, migInc, migInc3) : null;
     this.data.flagsV2 = true;
     this.data.sectorsV3 = true;
     this.data.incidentsV2 = true;
+    this.data.incidentsV3 = true;
     this.data.profiles = profiles;
     if (!['default', ...PROFILE_KEYS].includes(this.data.editProfile)) this.data.editProfile = 'default';
     this.active = 'default';

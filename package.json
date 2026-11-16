@@ -1,6 +1,6 @@
 {
   "name": "overlay-iracing",
-  "version": "0.7.2",
+  "version": "0.7.3",
   "description": "Overlays para iRacing em português, inglês e espanhol",
   "main": "src/main/main.js",
   "scripts": {
