@@ -335,8 +335,9 @@
       if (penalty && t.penalty[penalty]) parts.push(card(penalty, t.penalty[penalty], reason && t.reason[reason] ? `${t.reasonLbl} ${t.reason[reason]}` : null, true));
       // aviso de saída de pista / incidente embaixo das bandeiras
       let w = s.warning;
-      if (!w && ctx.edit && s.sample) w = { kind: 'lostControl', inc: 2 };
-      if (w && ctx.opts.warnings !== false && t.warn[w.kind]) parts.push(warnCard(w, t, side, ctx.opts.flagSide));
+      if (!w && ctx.edit && s.sample) w = { kind: 'lapInvalid', inc: 0 };
+      // só a volta inválida aparece aqui (incidentes ficam no overlay de Incidentes)
+      if (w && w.kind === 'lapInvalid' && ctx.opts.warnings !== false) parts.push(warnCard(w, t, side, ctx.opts.flagSide));
       const html = `<div class="flags">${parts.join('')}</div>`;
       if (el.__html !== html) { el.innerHTML = html; el.__html = html; } // só troca quando muda
     },

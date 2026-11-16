@@ -580,6 +580,8 @@
       if (off) w.offAt = now;
       if (w.incPrev === null || incidents < w.incPrev) w.incPrev = incidents;
       if (incidents > w.incPrev) { w.incDelta = incidents - w.incPrev; w.incAt = now; w.incPrev = incidents; }
+      // só o aviso de volta inválida vai pra tela (incidentes já têm o overlay deles)
+      if (lapInvalid && t.IsOnTrack) return { kind: 'lapInvalid', inc: 0, sticky: true };
       if (now - w.incAt < 5) {
         const k = { 1: 'offTrack', 2: 'lostControl', 4: 'contact' }[w.incDelta] || 'incident';
         return { kind: k, inc: w.incDelta };
