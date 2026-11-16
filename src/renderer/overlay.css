@@ -227,3 +227,7 @@ body[data-overlay="fps"] .anchor-grid, body[data-overlay="fps"] .frame-label { d
 .fside .fbox { flex: 0 0 auto; width: 84px; display: flex; align-items: center; justify-content: center; background: transparent; }
 .fside .fsvg { width: 100%; height: auto; max-height: 76px; filter: drop-shadow(0 2px 4px rgba(0,0,0,.6)); }
 .fside .fcard { flex: 1; min-width: 0; }
+
+/* bandeira agitada: o pano balança (leve, só transform) */
+.fsvg .wv { transform-box: view-box; transform-origin: 6px 18px; animation: flagwave 0.9s ease-in-out infinite alternate; }
+@keyframes flagwave { from { transform: skewY(-4deg) scaleX(0.96); } to { transform: skewY(3deg) scaleX(1.02); } }

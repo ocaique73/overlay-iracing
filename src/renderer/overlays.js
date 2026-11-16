@@ -238,15 +238,27 @@
       default: return solid('#888');
     }
   }
+  // ids fixos por tipo (o HTML não muda a cada quadro e a animação da bandeira agitada não reinicia)
+  const WAVING = new Set(['yellowWaving', 'cautionWaving']);
+  function oneFlag(kind, id, extra) {
+    const wv = WAVING.has(kind) ? ' class="wv"' : '';
+    return `<g${extra || ''}><rect x="3" y="2" width="2.6" height="37" rx="1.3" fill="#c9ced6"/>
+      <g${wv}><g clip-path="url(#${id})">${flagArt(kind, id)}<rect width="60" height="40" fill="url(#${id}g)"/></g>
+      <path d="${CLOTH}" fill="none" stroke="rgba(255,255,255,.35)" stroke-width=".8"/></g></g>`;
+  }
   function flagSvg(kind) {
-    const id = `fc${++flagUid}`;
-    return `<svg class="fsvg" viewBox="0 0 60 40" aria-hidden="true">
-      <defs><clipPath id="${id}"><path d="${CLOTH}"/></clipPath>
-        <linearGradient id="${id}g" x1="0" x2="1"><stop offset="0" stop-color="#fff" stop-opacity=".18"/><stop offset=".35" stop-color="#000" stop-opacity=".12"/><stop offset=".65" stop-color="#fff" stop-opacity=".14"/><stop offset="1" stop-color="#000" stop-opacity=".14"/></linearGradient></defs>
-      <rect x="3" y="2" width="2.6" height="37" rx="1.3" fill="#c9ced6"/>
-      <g clip-path="url(#${id})">${flagArt(kind, id)}<rect width="60" height="40" fill="url(#${id}g)"/></g>
-      <path d="${CLOTH}" fill="none" stroke="rgba(255,255,255,.35)" stroke-width=".8"/>
-    </svg>`;
+    const id = `fc-${kind}`;
+    const defs = `<defs><clipPath id="${id}"><path d="${CLOTH}"/></clipPath>
+        <linearGradient id="${id}g" x1="0" x2="1"><stop offset="0" stop-color="#fff" stop-opacity=".18"/><stop offset=".35" stop-color="#000" stop-opacity=".12"/><stop offset=".65" stop-color="#fff" stop-opacity=".14"/><stop offset="1" stop-color="#000" stop-opacity=".14"/></linearGradient></defs>`;
+    // neutralização (safety car): duas amarelas cruzadas
+    if (kind === 'caution' || kind === 'cautionWaving') {
+      return `<svg class="fsvg" viewBox="0 0 64 44" aria-hidden="true">${defs}
+        ${oneFlag(kind, id, ' transform="translate(30 3) scale(.72) rotate(14 4 39)"')}
+        ${oneFlag(kind, id, ' transform="translate(2 7) scale(.72) rotate(-14 4 39)"')}</svg>`;
+    }
+    // agitada: risquinhos de movimento do lado do pano (e o pano balança)
+    const motion = WAVING.has(kind) ? '<path d="M58 9 q3 5 0 10 M61.5 6 q4.5 8 0 16" fill="none" stroke="#ffd200" stroke-width="1.6" stroke-linecap="round" opacity=".8"/>' : '';
+    return `<svg class="fsvg" viewBox="0 0 ${motion ? 64 : 60} 40" aria-hidden="true">${defs}${oneFlag(kind, id)}${motion}</svg>`;
   }
   const FLAG_TITLE_SIDE = {
     yellow: '#ffd200', yellowWaving: '#ffd200', caution: '#ffd200', cautionWaving: '#ffd200', green: '#3ddc6e',
@@ -282,6 +294,23 @@
       <div class="bar" style="background:${bg};color:${barText}">${icon}<span>${esc(sub)}</span></div>${why}</div>`;
   }
 
+  // avisos no mesmo padrão das bandeiras: título em cima, faixa colorida com a explicação embaixo
+  // e, no visual "ao lado", um ícone de alerta no quadrado transparente
+  function warnIcon(color) {
+    return `<svg class="fsvg" viewBox="0 0 60 40" aria-hidden="true"><path d="M30 4 L51 37 H9 Z" fill="${color}" stroke="${color}" stroke-width="3" stroke-linejoin="round"/>
+      <rect x="28.2" y="15" width="3.6" height="12" rx="1.8" fill="#111"/><circle cx="30" cy="31.5" r="2.2" fill="#111"/></svg>`;
+  }
+  function warnCard(w, t, side, flagSide) {
+    const red = w.kind === 'lapInvalid' || w.kind === 'offTrackNow';
+    const title = w.inc ? `+${w.inc}x ${t.warnInc}` : t.warn[w.kind];
+    const sub = w.inc ? t.warn[w.kind] : (t.warnSub[w.kind] || '');
+    const tc = red ? '#ff4d42' : '#ff9f1a';
+    const bar = red ? 'background:#8f0d08;color:#fff' : 'background:#ff9f1a;color:#111';
+    const card = `<div class="flag"><div class="title" style="color:${tc}">${esc(title)}</div><div class="bar" style="${bar}"><span>${esc(sub)}</span></div></div>`;
+    if (!side) return card;
+    return `<div class="fside ${flagSide === 'right' ? 'right' : ''}"><div class="fbox">${warnIcon(red ? '#ff3b30' : '#ff9f1a')}</div><div class="fcard">${card}</div></div>`;
+  }
+
   const flags = {
     animated: true,
     render(el, s, ctx) {
@@ -302,11 +331,9 @@
       // aviso de saída de pista / incidente embaixo das bandeiras
       let w = s.warning;
       if (!w && ctx.edit && s.sample) w = { kind: 'lostControl', inc: 2 };
-      if (w && ctx.opts.warnings !== false && t.warn[w.kind]) {
-        const inc = w.inc ? `<b class="tnum">+${w.inc}x</b>` : '';
-        parts.push(`<div class="warncard ${w.kind === 'offTrackNow' || w.kind === 'lapInvalid' ? 'off' : ''}">${inc}<span>${esc(t.warn[w.kind])}</span></div>`);
-      }
-      el.innerHTML = `<div class="flags">${parts.join('')}</div>`;
+      if (w && ctx.opts.warnings !== false && t.warn[w.kind]) parts.push(warnCard(w, t, side, ctx.opts.flagSide));
+      const html = `<div class="flags">${parts.join('')}</div>`;
+      if (el.__html !== html) { el.innerHTML = html; el.__html = html; } // só troca quando muda
     },
   };
 

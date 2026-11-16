@@ -6,6 +6,7 @@
       overlay: { standings: 'Classificação', relative: 'Relative', radar: 'Radar', flags: 'Bandeiras e punições', incidents: 'Incidentes', pitlimiter: 'Limitador do pit', sectors: 'Setores', fuel: 'Combustível', tires: 'Pneus', session: 'Sessão', delta: 'Delta', panel: 'Painel avançado', laplog: 'Log de voltas', fps: 'FPS' },
       pit: { limiter: 'LIMITADOR', turnOn: 'LIGUE O LIMITADOR' },
       sec: { best: 'Melhor', current: 'Atual' },
+      warnInc: 'INCIDENTE', warnSub: { lapInvalid: 'Essa volta não vai contar', offTrackNow: 'Volte pra pista com cuidado' },
       warn: { lapInvalid: 'VOLTA INVÁLIDA', offTrackNow: 'FORA DA PISTA', offTrack: 'Saída de pista', lostControl: 'Perda de controle', contact: 'Contato', incident: 'Incidente' }, lapShort: 'V',
       fuel: { title: 'COMBUSTÍVEL', perLap: 'POR VOLTA', laps: 'DÁ PRA', toFinish: 'PRO FIM' },
       flag: {
@@ -34,6 +35,7 @@
       overlay: { standings: 'Standings', relative: 'Relative', radar: 'Radar', flags: 'Flags & penalties', incidents: 'Incidents', pitlimiter: 'Pit limiter', sectors: 'Sectors', fuel: 'Fuel', tires: 'Tires', session: 'Session', delta: 'Delta', panel: 'Advanced panel', laplog: 'Lap log', fps: 'FPS' },
       pit: { limiter: 'PIT LIMITER', turnOn: 'TURN ON LIMITER' },
       sec: { best: 'Best', current: 'Current' },
+      warnInc: 'INCIDENT', warnSub: { lapInvalid: 'This lap will not count', offTrackNow: 'Rejoin the track carefully' },
       warn: { lapInvalid: 'LAP INVALID', offTrackNow: 'OFF TRACK', offTrack: 'Off track', lostControl: 'Loss of control', contact: 'Contact', incident: 'Incident' }, lapShort: 'L',
       fuel: { title: 'FUEL', perLap: 'PER LAP', laps: 'LAPS LEFT', toFinish: 'TO FINISH' },
       flag: {
@@ -62,6 +64,7 @@
       overlay: { standings: 'Clasificación', relative: 'Relativo', radar: 'Radar', flags: 'Banderas y sanciones', incidents: 'Incidentes', pitlimiter: 'Limitador de boxes', sectors: 'Sectores', fuel: 'Combustible', tires: 'Neumáticos', session: 'Sesión', delta: 'Delta', panel: 'Panel avanzado', laplog: 'Registro de vueltas', fps: 'FPS' },
       pit: { limiter: 'LIMITADOR', turnOn: 'ACTIVA EL LIMITADOR' },
       sec: { best: 'Mejor', current: 'Actual' },
+      warnInc: 'INCIDENTE', warnSub: { lapInvalid: 'Esta vuelta no va a contar', offTrackNow: 'Vuelve a la pista con cuidado' },
       warn: { lapInvalid: 'VUELTA INVÁLIDA', offTrackNow: 'FUERA DE PISTA', offTrack: 'Salida de pista', lostControl: 'Pérdida de control', contact: 'Contacto', incident: 'Incidente' }, lapShort: 'V',
       fuel: { title: 'COMBUSTIBLE', perLap: 'POR VUELTA', laps: 'ALCANZA', toFinish: 'AL FINAL' },
       flag: {
