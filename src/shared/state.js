@@ -119,6 +119,7 @@
       this.deltaStale = null;
       this.candidate = null; // volta que acabou, esperando o tempo oficial pra virar referência
       this.ref = null; // melhor volta válida: { pts, time }
+      this.refAny = null; this.refInUse = null;
       this.prevPct = -1;
       this.warn = { offAt: -99, incPrev: null, incAt: -99, incDelta: 0 };
       this.incEvents = [];
@@ -324,6 +325,7 @@
       // ---------- relativo ----------
       const relative = [];
       if (player && player.pct >= 0) {
+        const estT = arr(t.CarIdxEstTime);
         const estLap = player.classEstLap > 0 ? player.classEstLap : (player.best > 0 ? player.best : 100);
         for (const d of drivers) {
           if (d.pct < 0 || !d.inWorld) continue;
@@ -335,10 +337,16 @@
             if (lapDiff > 0.5) lapState = 1; // vai te dar volta / está à frente em voltas
             else if (lapDiff < -0.5) lapState = -1; // você está dando volta nele
           }
+          let gapS = rel * estLap;
+          if (estT.length && d.classId === player.classId) {
+            let g = num(estT[d.idx], 0) - num(estT[player.idx], 0);
+            if (g > estLap / 2) g -= estLap; else if (g < -estLap / 2) g += estLap;
+            if (Math.sign(g) === Math.sign(rel) || Math.abs(rel) < 0.002) gapS = g;
+          }
           relative.push({
             idx: d.idx, name: d.name, number: d.number, classColor: d.classColor, carName: d.carName,
             licClass: d.licClass, licSr: d.licSr, pos: d.displayPos, onPit: d.onPit,
-            isPlayer: d.isPlayer, gap: rel * estLap, rel, lapState,
+            isPlayer: d.isPlayer, gap: gapS, rel, lapState,
           });
         }
         relative.sort((a, b) => b.rel - a.rel);
@@ -489,7 +497,7 @@
       // delta calculado pelo próprio app contra a sua melhor volta válida da sessão (não para quando sai da pista);
       // enquanto não tem volta de referência, usa o do iRacing se ele tiver
       let deltaVal = null; let refTime = -1;
-      if (own !== null) { deltaVal = own; refTime = this.ref.time; }
+      if (own !== null) { deltaVal = own; refTime = this.refInUse.time; }
       else if (t.LapDeltaToBestLap_OK !== false && bestLap > 0 && !onPitRoad) { deltaVal = num(t.LapDeltaToBestLap, 0); refTime = bestLap; }
       // travou (mesmo valor por mais de 1,5 s): esconde em vez de mostrar um número parado
       if (deltaVal !== null) {
@@ -666,8 +674,8 @@
         // o tempo oficial pode ter chegado antes da fração zerar
         const rp = this.refPending; this.refPending = null;
         if (rp && sessionTime - rp.at < 5) this.adoptReference(rp.time, rp.invalid, sessionTime);
-      } else if (this.trace && (pct - this.prevPct > 0.05 || pct < this.prevPct - 0.002)) {
-        this.trace.ok = false; // pulou (reset, reboque) ou andou pra trás
+      } else if (this.trace && (pct - this.prevPct > 0.05 || pct < this.prevPct - 0.01)) {
+        this.trace.ok = false; // pulou (reset, reboque) ou andou bastante pra trás: essa volta não serve de referência
       }
       if (onPit && this.trace) this.trace.ok = false;
       if (this.trace && curTime >= 0) {
@@ -678,18 +686,22 @@
       // o relógio da volta parou de andar: trata como travado
       if (curTime !== this.lastCur) { this.lastCur = curTime; this.lastCurAt = sessionTime; }
       if (sessionTime - (this.lastCurAt || 0) > 1) return null;
-      // volta "quebrada" (pit, reboque, rodou pra trás): não mostra delta até a próxima volta
-      if (!this.ref || curTime < 0 || !this.trace || !this.trace.pts.length || !this.trace.ok || onPit) return null;
-      return curTime - interpRef(this.ref.pts, pct, this.ref.time);
+      // referência: a melhor volta válida; enquanto não tiver nenhuma válida, a melhor volta completa mesmo inválida
+      // (antes, depois de uma volta inválida ou de uma rodada, o delta sumia)
+      const ref = this.ref || this.refAny;
+      if (!ref || curTime < 0 || !this.trace || onPit) return null;
+      this.refInUse = ref;
+      return curTime - interpRef(ref.pts, pct, ref.time);
     }
 
     adoptReference(lapTime, invalid, now) {
       const c = this.candidate; this.candidate = null;
       if (!c) { this.refPending = { time: lapTime, invalid, at: now }; return; }
-      if (invalid || !(lapTime > 0)) return;
-      if (this.ref && lapTime >= this.ref.time) return;
+      if (!(lapTime > 0)) return;
       const last = c.pts[c.pts.length - 1];
       if (!last || last[0] < 0.97) return;
+      if (invalid) { if (!this.refAny || lapTime < this.refAny.time) this.refAny = { pts: c.pts, time: lapTime }; return; }
+      if (this.ref && lapTime >= this.ref.time) return;
       this.ref = { pts: c.pts, time: lapTime };
     }
 
