@@ -1,0 +1,13 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><link rel="stylesheet" href="../src/renderer/overlay.css">
+<style>body{background:#556;width:1400px;height:900px;position:relative;overflow:visible}.ov{position:absolute}</style></head><body>
+<script src="../src/renderer/i18n.js"></script><script src="../src/renderer/common.js"></script><script src="../src/renderer/overlays.js"></script>
+<script>
+const lang=new URLSearchParams(location.search).get('lang')||'pt'; const t=I18N.get(lang);
+const kinds=['green','yellow','yellowWaving','caution','blue','white','checkered','red','debris'];
+const pens=[null,'black','repair','furled','disqualify'];
+let i=0;
+for(const k of kinds){ const p=pens[i%pens.length];
+  const el=document.createElement('div'); el.className='ov'; const x=20+(i%5)*275, y=20+Math.floor(i/5)*215;
+  el.style.cssText=`left:${x}px;top:${y}px;width:260px;height:196px;outline:1px dashed #f00`; document.body.appendChild(el);
+  Overlays.flags.render(el,{flags:{primary:k,penalty:p,list:[k],reason:['pitSpeeding','jumpStart','incidentLimit','cutting'][i%4]}},{t,opts:{},w:260,h:150,edit:false,now:0}); i++; }
+</script></body></html>

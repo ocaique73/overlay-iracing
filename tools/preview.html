@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../src/renderer/overlay.css">
+<style>
+  body { background: linear-gradient(180deg, #5d87b5 0%, #9cb7cf 38%, #3d4a3a 40%, #2b2f2a 100%); width: 1920px; height: 1080px; position: relative; }
+  .road { position: absolute; left: 35%; right: 35%; top: 40%; bottom: 0; background: linear-gradient(180deg,#444 0%,#2a2a2a 100%); clip-path: polygon(45% 0, 55% 0, 100% 100%, 0 100%); }
+  .ov { position: absolute; }
+  .edit .ov { outline: 2px dashed #e10600; }
+</style>
+</head>
+<body>
+<div class="road"></div>
+<script src="../src/shared/demo.js"></script>
+<script src="../src/shared/state.js"></script>
+<script src="../src/renderer/i18n.js"></script>
+<script src="../src/renderer/common.js"></script>
+<script src="../src/renderer/overlays.js"></script>
+<script>
+  const q = new URLSearchParams(location.search);
+  const lang = q.get('lang') || 'pt';
+  const L = {
+    standings: [16, 16, q.get('gap') ? 480 : 380, 330, { license: true, irating: false, brand: true, gap: !!q.get('gap'), irGain: !!q.get('gap') }],
+    relative: [16, 760, 360, 250, { license: true, brand: true }],
+    radar: [870, 170, 180, 200, { hideWhenClear: false, opacity: Number(q.get('op') || 50) }],
+    flags: [600, 170, 260, 150, {}],
+    incidents: [500, 170, 92, 60, { limit: true }],
+    sectors: [845, 20, 230, 100, { secStyle: q.get('single') ? 'single' : 'full', diff: true }],
+    pitlimiter: [845, 860, 230, 46, { speed: true }],
+    tires: [1500, 860, 130, 90, { tireNumbers: true }],
+    fuel: [1500, 760, 300, 64, {}],
+    delta: [1070, 185, q.get('bar') ? 380 : 300, q.get('bar') ? 130 : 185, { style: q.get('bar') ? 'bar' : 'circle' }],
+    session: [1634, 16, 270, 70, {}],
+    panel: [730, 930, 460, 120, { tireNumbers: !!q.get('tn') }],
+    laplog: [q.get('wide') ? 1440 : 1624, 300, q.get('wide') ? 460 : 280, 150, {}],
+    fps: [1814, 100, 90, 34, {}],
+  };
+  if (q.get('wide')) { L.standings[2] = 600; L.delta[2] = 640; }
+  const demo = new OverlayDemo.Demo();
+  const sb = new OverlayState.StateBuilder({ store: { getPB: () => 106.9, setPB() {} } });
+  let st; let ms = 0;
+  const secs = Number(q.get('t') || 330);
+  for (let i = 0; i < secs * 30; i++) { demo.step(1 / 30); ms += 33; st = sb.build(demo.telemetry(), demo.session(), { nowMs: ms }); }
+  if (q.get('single')) { st.multiclass = false; st.classes = [st.classes.find((c) => c.id === st.playerClassId)]; }
+  st.sample = true;
+  const now = ms - (q.get('flash') ? 1000 : 9000);
+  if (q.get('flash')) st.classes.forEach((c) => c.drivers.forEach((d, i) => { if (i % 3 === 0) d.lastLapAt = ms - 500; }));
+  Common.setBundledBase('../src/renderer/logos');
+  const t = I18N.get(lang);
+  for (const [id, [x, y, w, h, opts]] of Object.entries(L)) {
+    const el = document.createElement('div');
+    el.className = 'ov'; el.style.cssText = `left:${x}px;top:${y}px;width:${w}px;height:${h}px`;
+    document.body.appendChild(el);
+    Overlays[id].render(el, st, { t, opts, w, h, edit: !!q.get('edit'), now: q.get('flash') ? ms : ms + 9000 });
+  }
+  if (q.get('edit')) document.body.classList.add('edit');
+</script>
+</body>
+</html>
