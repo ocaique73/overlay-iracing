@@ -162,6 +162,15 @@
       const fastRep = arr(t.CarIdxFastRepairsUsed);
       const tireNames = ((s.DriverInfo || {}).DriverTires || []).reduce((m, x) => { m[num(x.TireIndex, -1)] = String(x.TireCompoundType || ''); return m; }, {});
       const surface = arr(t.CarIdxTrackSurface);
+      // resultados oficiais da sessão (os mesmos que o iRacing mostra na tela dele)
+      const official = {};
+      for (const r of arr(cur.ResultsPositions)) {
+        official[num(r.CarIdx, -1)] = {
+          pos: num(r.Position, 0), classPos: num(r.ClassPosition, -1) + 1,
+          best: num(r.FastestTime, -1), last: num(r.LastTime, -1),
+        };
+      }
+      const myLast = num(t.LapLastLapTime, -1); const myBest = num(t.LapBestLapTime, -1);
 
       // ---------- pilotos ----------
       const drivers = [];
@@ -170,8 +179,17 @@
         if (d.CarIsPaceCar || d.IsSpectator) continue;
         if (/pace car/i.test(d.UserName || '')) continue;
         const lic = shortLicense(d.LicString);
+        const off = official[idx] || null;
+        const isMe = idx === playerIdx;
+        // última volta: a sua vem da mesma fonte do log de voltas; a dos outros, da telemetria (ou do resultado oficial)
+        let lastT = num(lastLaps[idx], -1);
+        if (isMe && myLast > 0) lastT = myLast;
+        else if (!(lastT > 0) && off && off.last > 0) lastT = off.last;
+        // melhor volta: vale a oficial; sem ela, a da telemetria
+        let bestT = off && off.best > 0 ? off.best : num(bestLaps[idx], -1);
+        if (isMe && !(bestT > 0) && myBest > 0) bestT = myBest;
         const car = this.trackCar(idx, num(lapPct[idx], -1), num(lapsDone[idx], -1), sessionTime,
-          sectors, !!onPit[idx], num(lastLaps[idx], -1), nowMs);
+          sectors, !!onPit[idx], lastT, nowMs);
         drivers.push({
           idx,
           name: d.UserName || '',
@@ -187,10 +205,11 @@
           irating: num(d.IRating, 0),
           licClass: lic.cls,
           licSr: lic.sr,
-          pos: num(pos[idx], 0),
-          classPos: num(classPos[idx], 0),
-          best: num(bestLaps[idx], -1),
-          last: num(lastLaps[idx], -1),
+          pos: num(pos[idx], 0) || (off ? off.pos : 0),
+          classPos: num(classPos[idx], 0) || (off ? off.classPos : 0),
+          offClassPos: off ? off.classPos : 0,
+          best: bestT,
+          last: lastT,
           lastLapAt: car.lastLapAt,
           sectorsLast: car.sectorsLast,
           sectorsBest: car.sectorsBest,
@@ -254,7 +273,7 @@
       }
       const classes = Object.values(classesMap).map((c) => {
         const list = c.drivers.slice();
-        const official = (a, b) => {
+        const official = (a, b) => { // posição oficial na classe
           const ap = a.classPos > 0 ? a.classPos : 999; const bp = b.classPos > 0 ? b.classPos : 999;
           return ap - bp;
         };
@@ -268,7 +287,9 @@
         } else if (isRace) {
           list.sort((a, b) => official(a, b) || byBest(a, b));
         } else {
-          list.sort((a, b) => byBest(a, b) || official(a, b) || (b.progress - a.progress));
+          // treino/quali: a ordem oficial do iRacing; quem ainda não está nela entra pela melhor volta
+          const offc = (d) => (d.offClassPos > 0 && d.best > 0 ? d.offClassPos : 999);
+          list.sort((a, b) => (offc(a) - offc(b)) || byBest(a, b) || official(a, b));
         }
         list.forEach((d, i) => { d.displayPos = i + 1; });
         const bestLap = Math.min(...list.map((d) => (d.best > 0 ? d.best : Infinity)));
@@ -343,6 +364,15 @@
           if (Math.abs(m) < 6 && (nearestSide === null || Math.abs(m) < Math.abs(nearestSide))) nearestSide = m;
         }
         if (nearestSide !== null) radar.sideOffset = nearestSide;
+        // o aviso de lado do iRacing (o do spotter) chega atrasado. Se pela distância já tem um carro
+        // emparelhado (menos de um carro de diferença), mostra na hora: do último lado conhecido, ou dos dois
+        const rs = this.radarSide || (this.radarSide = { side: 0, at: -99 });
+        if (radar.left && !radar.right) { rs.side = -1; rs.at = sessionTime; }
+        else if (radar.right && !radar.left) { rs.side = 1; rs.at = sessionTime; }
+        if (!radar.left && !radar.right && nearestSide !== null && Math.abs(nearestSide) < 4.3) {
+          if (sessionTime - rs.at < 1.5 && rs.side) { if (rs.side < 0) radar.left = 1; else radar.right = 1; }
+          else { radar.left = 1; radar.right = 1; radar.guess = true; }
+        }
       }
       radar.near = !!(radar.left || radar.right || radar.ahead !== null || radar.behind !== null);
       radar.qualify = /qual/i.test(sessionType);
@@ -677,11 +707,19 @@
       if (lastLap > 0 && lastLap !== c.prevLast) c.lastLapAt = nowMs;
       // distância total percorrida (voltas + fração), sem pulos na linha de chegada
       if (pct >= 0 && lapsDone >= 0) {
-        let prog = lapsDone + pct;
-        if (c.prog !== undefined) {
-          if (prog < c.prog - 0.5) prog += 1; // a fração zerou antes da contagem de voltas
-          else if (prog > c.prog + 0.5) prog -= 1; // a contagem subiu antes da fração zerar
+        // perto da linha de chegada a fração da volta e a contagem de voltas não mudam no mesmo instante.
+        // "adj" corrige só nesse intervalo e se desfaz sozinho (antes um salto de posição, como reboque
+        // pro box, deixava o carro com uma volta a mais ou a menos pra sempre e bagunçava a classificação)
+        if (c.adj === undefined) c.adj = 0;
+        const pp = c.progPct; const pl = c.progLaps;
+        if (pp !== undefined && pl !== undefined) {
+          if (lapsDone !== pl) c.adj = (pct > 0.75 && lapsDone === pl + 1) ? -1 : 0; // contagem subiu antes da fração zerar?
+          else if (pp > 0.75 && pct < 0.25) c.adj = c.adj === -1 ? 0 : 1; // fração zerou: espera a contagem (ou fecha o -1)
+          else if (pct >= 0.25 && pct <= 0.75) c.adj = 0; // longe da linha: nunca tem correção
+          else if (c.adj === 1 && pct > 0.75) c.adj = 0;
         }
+        c.progPct = pct; c.progLaps = lapsDone;
+        const prog = lapsDone + pct + c.adj;
         // tempo em que o carro passou por cada um dos 100 pontos da volta (pra calcular gap em segundos)
         const idx = Math.floor(prog * GAP_CP);
         if (c.cpIdx === undefined || idx < c.cpIdx - GAP_CP / 2 || idx > c.cpIdx + GAP_CP) {

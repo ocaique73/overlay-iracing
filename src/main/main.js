@@ -215,6 +215,8 @@ function panelPayload() {
 
 let lastTick = Date.now();
 let wasConnected = false;
+let tickN = 0;
+const FAST = new Set(['delta', 'panel', 'pitlimiter', 'sectors', 'tires']);
 let fgCheckedAt = 0; let gameInFront = true;
 function isGameInFront() {
   const title = foregroundTitle();
@@ -282,8 +284,15 @@ function tick() {
   lastState = state;
   sendPreview(state, now);
   updateProfile();
-  for (const win of Object.values(windows)) {
-    if (!win.isDestroyed()) win.webContents.send('state', state);
+  // Mandar o estado inteiro pra todas as janelas 60x por segundo pesava e atrasava o radar.
+  // Agora: radar em todo ciclo, só com o que ele usa; delta/painel/limitador/setores a ~30 Hz; o resto a ~10 Hz.
+  tickN += 1;
+  const base = { connected: state.connected, sample: state.sample, hidden: state.hidden, outOfCar: state.outOfCar, editMode: state.editMode, nowMs: state.nowMs };
+  for (const [id, win] of Object.entries(windows)) {
+    if (win.isDestroyed()) continue;
+    if (id === 'radar') win.webContents.send('state', { ...base, radar: state.radar });
+    else if (FAST.has(id)) { if (tickN % 2 === 0) win.webContents.send('state', state); }
+    else if (tickN % 6 === 0) win.webContents.send('state', state);
   }
   if (status !== lastStatus) {
     lastStatus = status;

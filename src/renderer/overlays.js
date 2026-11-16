@@ -189,7 +189,7 @@
         const tip = front ? y0 - ry : y0 + ry;
         return `<path d="M ${cx - rx} ${y0} A ${rx} ${ry} 0 0 ${sweep} ${cx + rx} ${y0} Z" fill="url(#${front ? 'yf' : 'yb'})" opacity="${k}" filter="url(#blurL)" data-tip="${tip}"/>`;
       };
-      el.innerHTML = `<svg class="radar ${hide ? 'off' : ''}" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" style="opacity:${hide ? 0 : alpha}">
+      const html = `<svg class="radar ${hide ? 'off' : ''}" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" style="opacity:${hide ? 0 : alpha}">
         <defs>
           <filter id="blurS" x="-30%" y="-60%" width="160%" height="220%"><feGaussianBlur stdDeviation="${Math.max(1.2, carW * 0.13)}"/></filter>
           <filter id="blurL" x="-30%" y="-60%" width="160%" height="220%"><feGaussianBlur stdDeviation="${Math.max(2.5, carW * 0.3)}"/></filter>
@@ -212,6 +212,7 @@
         <line x1="${W * 0.32}" y1="${cy + carH * 0.32}" x2="${W * 0.68}" y2="${cy + carH * 0.32}" stroke="#fff" stroke-width="1" stroke-dasharray="1 3" stroke-opacity="0.45"/>
         <rect x="${cx - carW / 2}" y="${cy - carH / 2}" width="${carW}" height="${carH}" rx="${carW * 0.22}" fill="#fff" stroke="rgba(0,0,0,0.55)" stroke-width="1"/>
       </svg>`;
+      if (el.__html !== html) { el.innerHTML = html; el.__html = html; } // só redesenha quando muda
     },
   };
 
@@ -607,6 +608,10 @@
       const bestSec = [];
       if (showSec) for (const l of L.list) (l.sectors || []).forEach((v, i) => { if (!l.invalid && v > 0 && (!(bestSec[i] > 0) || v < bestSec[i])) bestSec[i] = v; });
       const showTemp = ctx.opts.trackTemp !== false;
+      // mesmas cores da classificação: roxo só se for o melhor da classe na sessão; verde = o seu melhor
+      const myCls = (s.classes || []).find((c) => c.id === s.playerClassId) || {};
+      const clsBest = myCls.sessionBest > 0 ? myCls.sessionBest : -1;
+      const clsSec = myCls.sessionBestSectors || [];
       const cols = `grid-template-columns:40px 78px ${showSec ? `repeat(${nSec}, 52px) ` : ''}1fr${showTemp ? ' 46px' : ''}`;
       const secHead = showSec ? Array.from({ length: nSec }, (_, i) => `<span>S${i + 1}</span>`).join('') : '';
       el.innerHTML = `<div class="log">
@@ -617,9 +622,10 @@
           const secs = showSec ? Array.from({ length: nSec }, (_, i) => {
             const v = (l.sectors || [])[i];
             const best = v > 0 && bestSec[i] > 0 && Math.abs(v - bestSec[i]) < 0.0005;
-            return `<span class="sec${best ? ' best' : ''}">${fmtSector(v)}</span>`;
+            const top = best && clsSec[i] > 0 && v <= clsSec[i] + 0.0005;
+            return `<span class="sec${best ? (top ? ' best' : ' pb') : ''}">${fmtSector(v)}</span>`;
           }).join('') : '';
-          return `<div class="lrow tnum${l.invalid ? ' invalid' : ''}" style="${cols}"><span>${l.lap}</span><span${isBest ? ' class="best"' : ''}>${fmtLap(l.time)}</span>
+          return `<div class="lrow tnum${l.invalid ? ' invalid' : ''}" style="${cols}"><span>${l.lap}</span><span${isBest ? ` class="${clsBest > 0 && l.time <= clsBest + 0.0005 ? 'best' : 'pb'}"` : ''}>${fmtLap(l.time)}</span>
             ${secs}<span class="dl">${isBest ? '—' : fmtDelta(dlt)}</span>${showTemp ? `<span class="tmp">${l.trackTemp ? l.trackTemp.toFixed(0) + '°C' : '-'}</span>` : ''}</div>`;
         }).join('')}
       </div>`;

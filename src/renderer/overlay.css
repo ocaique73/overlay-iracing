@@ -88,7 +88,7 @@ body[data-overlay="fps"] .anchor-grid, body[data-overlay="fps"] .frame-label { d
 .rel-row.pit { opacity: 0.55; }
 
 /* ---------- radar ---------- */
-.radar { position: absolute; inset: 0; transition: opacity 0.25s; }
+.radar { position: absolute; inset: 0; }
 .radar.off { opacity: 0; }
 
 /* ---------- bandeiras ---------- */
@@ -253,3 +253,4 @@ body[data-overlay="fps"] .anchor-grid, body[data-overlay="fps"] .frame-label { d
 .st-row .tcmp.wet { border-color: #2d8cff; color: #6fb2ff; }
 .st-row .xcol { text-align: center; font-size: 12px; font-weight: 700; color: #c9ced6; }
 .st-row .xcol small { font-size: 9px; color: var(--muted); margin-left: 1px; }
+.log .lrow .pb, .log .lrow .sec.pb { color: #22d36b; }
