@@ -256,7 +256,9 @@
     const [title, sub] = texts;
     // bandeiras comuns: o desenho já diz qual é, então o texto "Bandeira X" sai; punições mantêm a explicação
     const showSub = !!isPenalty;
-    return `<div class="fside ${side === 'right' ? 'right' : ''}">${flagSvg(kind)}
+    // a bandeira fica num quadrado transparente separado, ao lado do cartão de texto
+    return `<div class="fside ${side === 'right' ? 'right' : ''}">
+      <div class="fbox">${flagSvg(kind)}</div>
       <div class="ftxt"><div class="ft" style="color:${FLAG_TITLE_SIDE[kind] || '#fff'}">${esc(title)}</div>
         ${showSub ? `<div class="fs">${esc(sub)}</div>` : ''}${reason ? `<div class="fr">${esc(reason)}</div>` : ''}</div></div>`;
   }
