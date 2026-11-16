@@ -25,10 +25,23 @@ jobs:
         run: |
           VER=$(node -p "require('./package.json').version")
           echo "version=$VER" >> "$GITHUB_OUTPUT"
-          if gh release view "v$VER" >/dev/null 2>&1; then echo "exists=true" >> "$GITHUB_OUTPUT"; else echo "exists=false" >> "$GITHUB_OUTPUT"; fi
+          if gh release view "v$VER" --json assets -q '.assets[].name' 2>/dev/null | grep -q '^latest.yml$'; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            # release incompleto (sem latest.yml) de uma tentativa anterior: apaga e refaz
+            gh release delete "v$VER" --yes --cleanup-tag 2>/dev/null || true
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
       - if: steps.check.outputs.exists == 'false'
         run: npm ci
       - if: steps.check.outputs.exists == 'false'
-        run: npm run release
+        run: npm run dist
+      - name: Publica o release
+        if: steps.check.outputs.exists == 'false'
+        shell: bash
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          VER=${{ steps.check.outputs.version }}
+          gh release create "v$VER" dist/*.exe dist/*.blockmap dist/latest.yml \
+            --title "v$VER" --notes "Baixe o Overlay-iRacing-Setup-$VER.exe e instale. Quem já tem o app instalado recebe o aviso de atualização no painel." --latest
