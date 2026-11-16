@@ -97,7 +97,7 @@ footer { display: flex; gap: 18px; align-items: center; padding: 10px 20px; bord
 .ver { margin-left: auto; color: var(--muted); font-size: 12px; display: inline-flex; align-items: center; gap: 8px; }
 
 /* posição e ajuste fino lado a lado, só do tamanho do conteúdo */
-.toprow { display: flex; gap: 14px; align-items: stretch; }
+.toprow { display: flex; gap: 14px; align-items: stretch; flex-direction: row-reverse; } /* prévia à direita */
 .ctrls { display: flex; flex-direction: column; gap: 14px; }
 .ctrls .box { flex: 0 0 auto; }
 .opt input.wide { flex: 1; max-width: 420px; accent-color: var(--red); }
