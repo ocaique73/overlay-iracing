@@ -193,6 +193,7 @@ function setLocked(locked) {
 function createPanel() {
   panelWin = new BrowserWindow({
     width: 1180, height: 820, minWidth: 940, minHeight: 600, title: 'Overlay iRacing',
+    icon: path.join(__dirname, '..', 'renderer', 'icon.png'),
     backgroundColor: '#14161a', autoHideMenuBar: true,
     webPreferences: { preload: path.join(__dirname, '..', 'preload.js'), contextIsolation: true, nodeIntegration: false },
   });

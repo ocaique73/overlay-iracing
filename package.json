@@ -1,6 +1,6 @@
 {
   "name": "overlay-iracing",
-  "version": "0.7.5",
+  "version": "0.8.0",
   "description": "Overlays para iRacing em português, inglês e espanhol",
   "main": "src/main/main.js",
   "scripts": {
@@ -41,10 +41,12 @@
           ]
         }
       ],
-      "signAndEditExecutable": false
+      "signAndEditExecutable": true,
+      "icon": "build/icon.ico"
     },
     "directories": {
-      "output": "dist"
+      "output": "dist",
+      "buildResources": "build"
     },
     "extraFiles": [
       {
@@ -58,7 +60,9 @@
       "artifactName": "Overlay-iRacing-Setup-${version}.${ext}",
       "shortcutName": "Overlay iRacing",
       "createDesktopShortcut": true,
-      "deleteAppDataOnUninstall": false
+      "deleteAppDataOnUninstall": false,
+      "installerIcon": "build/icon.ico",
+      "uninstallerIcon": "build/icon.ico"
     },
     "publish": [
       {
