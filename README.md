@@ -19,5 +19,5 @@ npm start          # roda o app
 npm run dist       # gera o instalador em dist/
 ```
 
-Para publicar uma versão: suba o número em `package.json`, faça commit e envie a tag `vX.Y.Z`.
-O GitHub Actions gera o instalador e publica o release.
+Para publicar uma versão: suba o número em `package.json` e envie pra branch `main`.
+O GitHub Actions gera o instalador e publica o release `vX.Y.Z` sozinho.
