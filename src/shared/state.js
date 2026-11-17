@@ -523,8 +523,12 @@
       // delta calculado pelo próprio app contra a sua melhor volta válida da sessão (não para quando sai da pista);
       // enquanto não tem volta de referência, usa o do iRacing se ele tiver
       let deltaVal = null; let refTime = -1;
-      if (own !== null) { deltaVal = own; refTime = this.refInUse.time; }
-      else if (t.LapDeltaToBestLap_OK !== false && bestLap > 0 && !onPitRoad) { deltaVal = num(t.LapDeltaToBestLap, 0); refTime = bestLap; }
+      // delta direto do iRacing (contra a sua melhor volta da sessão), como o Marble Trace faz.
+      // O cálculo próprio (own) fica só como reserva se o iRacing não estiver mandando o dele.
+      const irBest = num(t.LapBestLapTime, -1) > 0 ? num(t.LapBestLapTime, -1) : bestLap;
+      if (t.LapDeltaToBestLap !== undefined && t.LapDeltaToBestLap_OK !== false && irBest > 0 && !onPitRoad) {
+        deltaVal = num(t.LapDeltaToBestLap, 0); refTime = irBest;
+      } else if (t.LapDeltaToBestLap === undefined && own !== null) { deltaVal = own; refTime = this.refInUse.time; }
       // travou (mesmo valor por mais de 1,5 s): esconde em vez de mostrar um número parado
       if (deltaVal !== null) {
         const ds = this.deltaStale;
