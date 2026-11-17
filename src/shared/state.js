@@ -109,6 +109,7 @@
       this.lapOffTrack = false;
       this.sessionBestSectors = {}; // por classe: [s1, s2, ...]
       this.pendingLap = null; // volta completada esperando o iRacing publicar o tempo
+      this.lastWritten = -1; this.tow = {};
       this.prevTickLast = -1;
       this.fuelLaps = []; // consumo das últimas voltas limpas
       this.fuelLapStart = null;
@@ -216,6 +217,7 @@
           sectorsBest: car.sectorsBest,
           lapsDone: num(lapsDone[idx], 0),
           progress: car.prog || 0,
+          surface: num(surface[idx], -1),
           lap: num(lapNum[idx], 0),
           pct: num(lapPct[idx], -1),
           onPit: !!onPit[idx],
@@ -227,6 +229,24 @@
           fastRepairs: fastRep.length ? num(fastRep[idx], 0) : 0,
         });
       }
+      // ---------- quem está correndo de verdade ----------
+      // na pista ou fora dela (0/3), fora do pit = correndo, ordenado pela distância percorrida (volta atual + fração).
+      // No box/garagem/pit lane a distância não diz nada da posição (o iRacing projeta o pit na pista):
+      // esses ficam na posição oficial. Rebocado: congela a distância de onde o guincho pegou.
+      const tow = this.tow || (this.tow = {});
+      for (const d of drivers) {
+        const prev = tow[d.idx] || {};
+        const inWorld = d.surface !== -1 && d.pct >= 0;
+        const racingNow = !d.onPit && (d.surface === 0 || d.surface === 3) && d.pct >= 0;
+        const live = inWorld ? d.lap + d.pct : null;
+        let towed = prev.towed;
+        if (!inWorld && prev.racing && !d.onPit) towed = towed || { prog: prev.prog };
+        if (inWorld) towed = null;
+        d.racing = racingNow || !!towed;
+        d.rankProg = racingNow ? live : (towed ? towed.prog : null);
+        tow[d.idx] = { racing: racingNow, prog: live !== null ? live : prev.prog, towed };
+      }
+
       const byIdx = {};
       for (const d of drivers) byIdx[d.idx] = d;
       const player = byIdx[playerIdx] || null;
@@ -264,7 +284,7 @@
       }
 
       // ---------- classificação ----------
-      const liveRace = isRace && num(t.SessionState, 0) === 4; // 4 = corrida em andamento
+      const liveRace = isRace && [4, 5, 6].includes(num(t.SessionState, 0)); // corrida em andamento, bandeirada ou volta de desaceleração
       const classesMap = {};
       for (const d of drivers) {
         const c = classesMap[d.classId] || (classesMap[d.classId] = {
@@ -283,8 +303,17 @@
           return ab - bb;
         };
         if (liveRace) {
-          // o iRacing só atualiza a posição oficial na linha de chegada: em corrida usamos a distância ao vivo
-          list.sort((a, b) => (b.progress - a.progress) || official(a, b));
+          // o iRacing só atualiza a posição oficial na linha de chegada: em corrida, quem está correndo
+          // vai pela distância ao vivo; quem está no box/garagem entra pela posição oficial no meio deles
+          const racing = list.filter((d) => d.rankProg !== null && d.rankProg !== undefined)
+            .sort((a, b) => (b.rankProg - a.rankProg) || official(a, b));
+          const offKey = (d) => (d.classPos > 0 ? d.classPos : 999);
+          const rest = list.filter((d) => !(d.rankProg !== null && d.rankProg !== undefined)).sort((a, b) => offKey(a) - offKey(b));
+          for (const d of rest) {
+            const at = racing.filter((o) => offKey(o) < offKey(d)).length;
+            racing.splice(at, 0, d);
+          }
+          list.length = 0; list.push(...racing);
         } else if (isRace) {
           list.sort((a, b) => official(a, b) || byBest(a, b));
         } else {
@@ -372,15 +401,6 @@
           if (Math.abs(m) < 6 && (nearestSide === null || Math.abs(m) < Math.abs(nearestSide))) nearestSide = m;
         }
         if (nearestSide !== null) radar.sideOffset = nearestSide;
-        // o aviso de lado do iRacing (o do spotter) chega atrasado. Se pela distância já tem um carro
-        // emparelhado (menos de um carro de diferença), mostra na hora: do último lado conhecido, ou dos dois
-        const rs = this.radarSide || (this.radarSide = { side: 0, at: -99 });
-        if (radar.left && !radar.right) { rs.side = -1; rs.at = sessionTime; }
-        else if (radar.right && !radar.left) { rs.side = 1; rs.at = sessionTime; }
-        if (!radar.left && !radar.right && nearestSide !== null && Math.abs(nearestSide) < 4.3) {
-          if (sessionTime - rs.at < 1.5 && rs.side) { if (rs.side < 0) radar.left = 1; else radar.right = 1; }
-          else { radar.left = 1; radar.right = 1; radar.guess = true; }
-        }
       }
       radar.near = !!(radar.left || radar.right || radar.ahead !== null || radar.behind !== null);
       radar.qualify = /qual/i.test(sessionType);
@@ -440,7 +460,7 @@
       if (playerLapsDone > this.playerLapsDone) {
         // o iRacing marca a volta como completa antes de atualizar LapLastLapTime: guarda e espera o tempo novo
         this.pendingLap = {
-          lap: playerLapsDone, prevLast: this.prevTickLast, at: sessionTime, trackTemp,
+          lap: playerLapsDone, prevLast: this.lastWritten, at: sessionTime, trackTemp,
           invalid: this.lapOffTrack || incidents > this.lapIncidentStart,
         };
         // consumo da volta (só voltas limpas, sem pit nem reabastecimento)
@@ -458,7 +478,13 @@
       }
       if (this.pendingLap) {
         const p = this.pendingLap;
-        if (lastNow > 0 && lastNow !== p.prevLast) {
+        // o iRacing publica o tempo da volta com atraso variável: às vezes um quadro ANTES da contagem subir,
+        // às vezes uns quadros depois. Compara com o último tempo gravado (não com o quadro anterior),
+        // e depois de 1 s na volta nova aceita o que estiver lá (pode ser uma volta com o mesmo tempo da anterior)
+        const curLap = num(t.LapCurrentLapTime, 0);
+        const settled = lastNow > 0 && (Math.abs(lastNow - (p.prevLast || -1)) > 1e-4 || (curLap >= 1 && sessionTime - p.at >= 1));
+        if (settled) {
+          this.lastWritten = lastNow;
           this.laps.push({ lap: p.lap, time: lastNow, trackTemp: p.trackTemp, invalid: p.invalid, sectors: null, at: p.at });
           this.adoptReference(lastNow, p.invalid, sessionTime);
           if (this.laps.length > 60) this.laps.shift();
